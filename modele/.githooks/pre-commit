@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# À chaque commit : les fichiers indexés (secrets, données, gros fichiers, termes interdits,
+# CONTRAT.md), puis les tests des modules touchés. Ces tests ne bloquent pas sur une branche
+# chantier/*, ils bloquent ailleurs. Le commit qui conclut une fusion en conflit reçoit les
+# tests de la fusion, bloquants.
+# Actif après : git config core.hooksPath .githooks (committé, donc vu par tous les worktrees).
+# Ne jamais contourner avec --no-verify : corriger, ou signaler à l'humain.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+exec bash ./verifier --rapide

@@ -1,0 +1,4 @@
+* text=auto eol=lf
+*.ps1 text eol=crlf
+# Texte officiel de licence : gardé octet pour octet, fins de ligne comprises.
+LICENSE-TEXTES -text

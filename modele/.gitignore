@@ -1,0 +1,37 @@
+# Secrets : restent sur le poste, jamais dans git
+.env
+.env.*
+!.env.exemple
+*.pem
+*.key
+*.p12
+secrets/
+
+# Sorties de l'outil : régénérables, jamais versionnées
+sorties/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# JavaScript
+node_modules/
+dist/
+coverage/
+
+# Copies de travail des sessions parallèles
+.worktrees/
+
+# Réglages locaux de l'agent
+.claude/settings.local.json
+
+# Systèmes
+.DS_Store
+Thumbs.db
+desktop.ini

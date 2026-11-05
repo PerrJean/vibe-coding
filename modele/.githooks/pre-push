@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Avant chaque envoi : tout le dépôt, et la liste complète des tests, lents compris, bloquants.
+# Actif après : git config core.hooksPath .githooks (committé, donc vu par tous les worktrees).
+# Ne jamais contourner avec --no-verify : corriger, ou signaler à l'humain.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+exec bash ./verifier </dev/null

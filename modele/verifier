@@ -1,0 +1,238 @@
+#!/usr/bin/env bash
+# Commande de vérification unique : la même pour l'humain, l'agent et les hooks.
+# Les contrôles sont rangés par durée : un contrôle trop lent pour son moment finit désactivé.
+#   ./verifier --rapide   commit (pre-commit) : les fichiers indexés, puis les tests des
+#                         modules touchés. Tests non bloquants sur chantier/*, bloquants ailleurs.
+#   ./verifier --fusion   fusion (pre-merge-commit) : tout le dépôt, tous les tests sauf
+#                         les lents (tests/lents.txt). Dix minutes au plus.
+#   ./verifier            envoi (pre-push) : tout le dépôt, tous les tests.
+# Exemple à adapter : les seuils sont en tête, les tests dans lister_tests et lancer_tests.
+
+set -u
+cd "$(git rev-parse --show-toplevel)" || exit 2
+
+PLAFOND_LIGNES=500        # au-delà : avertissement
+LIMITE_DURE_LIGNES=800    # au-delà : échec
+PLAFOND_FONCTION=80       # au-delà : avertissement (Python)
+PLAFOND_OCTETS=500000     # au-delà : échec, sauf fichier déclaré « livre » dans .gitattributes
+PLAFOND_DIFF=400          # lignes modifiées par fichier existant en un commit (GROS_DIFF_OK=1 pour passer)
+PLAFOND_CONTRAT=100       # lignes de CONTRAT.md : au-delà, c'est le projet qui se découpe
+TESTS_LENTS=tests/lents.txt
+# Termes refusés dans les fichiers et dans l'auteur des commits (employeur, clients, projets
+# internes). Liste hors du dépôt. Vide ("") : contrôle désactivé, décision à prendre au jour 0.
+LISTE_INTERDITS="$HOME/.config/termes-interdits.txt"
+
+EXT_CODE='py|js|mjs|cjs|ts|tsx|jsx|vue|svelte|html|htm|css|scss|sql|sh|bash|ps1|psm1|rb|go|rs|java|kt|php|cs|c|h|cpp|hpp|r|R'
+EXT_DONNEES='csv|tsv|xlsx|xls|jsonl|ndjson|parquet|db|sqlite|sqlite3'
+INTERDITS='(^|/)(\.env(\..*)?|.*\.pem|.*\.key|.*\.p12|id_rsa.*|id_ed25519.*|secrets/.*|sorties/.*|node_modules/.*|__pycache__/.*|\.venv/.*)$'
+AUTORISES='(^|/)\.env\.exemple$'
+SECRETS='(AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{40,}|sk-[A-Za-z0-9_-]{20,}|xox[abpr]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{35}|(password|passwd|mot_de_passe|secret|token|api_key)[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"'[:space:]]{8,})'
+
+# Python : python sous Windows (python3 y est souvent un raccourci vers le Store), python3 ailleurs.
+export PYTHONIOENCODING=utf-8
+case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) PY=python ;; *) PY=python3 ;; esac
+
+MODE=complet
+case "${1:-}" in --rapide) MODE=rapide ;; --fusion) MODE=fusion ;; "") ;; *) echo "usage : ./verifier [--rapide | --fusion]"; exit 2 ;; esac
+BRANCHE=$(git symbolic-ref --short -q HEAD || echo "(détachée)")
+# Le commit qui conclut une fusion en conflit passe par pre-commit, pas par pre-merge-commit :
+# il reçoit les tests de la fusion, bloquants.
+FUSION_EN_COURS=0
+git rev-parse -q --verify MERGE_HEAD >/dev/null && FUSION_EN_COURS=1
+
+echecs=0
+avertissements=0
+echec() { echo "  ÉCHEC  $*"; echecs=$((echecs + 1)); }
+avert() { echo "  AVERT  $*"; avertissements=$((avertissements + 1)); }
+etape() { echo "== $*"; }
+
+# Fichiers à contrôler : indexés (rapide) ou suivis par git (fusion, complet).
+fichiers=()
+if [ "$MODE" = rapide ]; then
+  while IFS= read -r -d '' f; do fichiers+=("$f"); done \
+    < <(git diff --cached --name-only -z --diff-filter=ACMR)
+else
+  while IFS= read -r -d '' f; do [ -f "$f" ] && fichiers+=("$f"); done \
+    < <(git ls-files -z)
+fi
+
+# Contenu tel qu'il sera committé (rapide) ou tel qu'il est sur le disque.
+contenu() {
+  if [ "$MODE" = rapide ]; then git show ":$1" 2>/dev/null; else cat -- "$1"; fi
+}
+
+est_livre() {
+  [ "$(git check-attr livre -- "$1" | sed 's/.*: //')" = set ]
+}
+
+etape "Fichiers interdits : secrets, sorties, dépendances, données"
+for f in "${fichiers[@]}"; do
+  if [[ "$f" =~ $INTERDITS ]] && ! [[ "$f" =~ $AUTORISES ]]; then
+    echec "$f : secret, sortie ou dépendance, à retirer de git (.gitignore)"
+  elif [[ "$f" =~ \.($EXT_DONNEES)$ ]] && ! est_livre "$f"; then
+    echec "$f : fichier de données. Hors de git, ou déclaré « livre » dans .gitattributes"
+  fi
+done
+
+etape "Poids des fichiers"
+for f in "${fichiers[@]}"; do
+  octets=$(contenu "$f" | wc -c | tr -d ' ')
+  if [ "$octets" -gt "$PLAFOND_OCTETS" ] && ! est_livre "$f"; then
+    echec "$f : $octets octets. Fichier produit ? Sinon, le déclarer « livre » dans .gitattributes"
+  fi
+done
+
+etape "Taille des fichiers de code (plafond $PLAFOND_LIGNES, limite dure $LIMITE_DURE_LIGNES)"
+for f in "${fichiers[@]}"; do
+  [[ "$f" =~ \.($EXT_CODE)$ ]] || continue
+  est_livre "$f" && continue
+  lignes=$(contenu "$f" | wc -l | tr -d ' ')
+  if [ "$lignes" -gt "$LIMITE_DURE_LIGNES" ]; then
+    echec "$f : $lignes lignes. Scinder selon les responsabilités"
+  elif [ "$lignes" -gt "$PLAFOND_LIGNES" ]; then
+    avert "$f : $lignes lignes. Quel principe a lâché ?"
+  fi
+done
+
+etape "Secrets en clair"
+if [ "$MODE" = rapide ]; then
+  trouve=$(git diff --cached -U0 --diff-filter=ACMR | grep -E '^\+[^+]' | grep -En "$SECRETS" | head -5)
+  [ -n "$trouve" ] && echec "secret probable dans les lignes ajoutées :" && echo "$trouve" | sed 's/^/         /'
+else
+  for f in "${fichiers[@]}"; do
+    est_livre "$f" && continue
+    grep -IEq "$SECRETS" -- "$f" 2>/dev/null && echec "$f : secret probable ($(grep -IEn "$SECRETS" -- "$f" | head -1 | cut -d: -f1)e ligne)"
+  done
+fi
+
+etape "Termes interdits"
+if [ -z "$LISTE_INTERDITS" ]; then
+  echo "  contrôle désactivé (LISTE_INTERDITS vide dans ./verifier)"
+elif [ "$MODE" = rapide ]; then
+  "$PY" .githooks/termes_interdits.py "$LISTE_INTERDITS" --index --auteur || echec "terme interdit ou liste absente (voir ci-dessus)"
+else
+  "$PY" .githooks/termes_interdits.py "$LISTE_INTERDITS" --disque || echec "terme interdit ou liste absente (voir ci-dessus)"
+fi
+
+etape "CONTRAT.md sous son plafond ($PLAFOND_CONTRAT lignes)"
+if [ "$MODE" = rapide ]; then contrat=$(git show :CONTRAT.md 2>/dev/null); else contrat=$(cat CONTRAT.md 2>/dev/null); fi
+if [ -z "$contrat" ]; then
+  echo "  CONTRAT.md absent : à écrire au jour 0"
+else
+  n=$(printf '%s\n' "$contrat" | wc -l | tr -d ' ')
+  [ "$n" -gt "$PLAFOND_CONTRAT" ] && echec "CONTRAT.md : $n lignes. Le contrat ne se rogne pas : c'est le projet qui se découpe"
+fi
+
+if [ "$MODE" = rapide ]; then
+  etape "Taille du diff (plafond $PLAFOND_DIFF lignes par fichier existant)"
+  while IFS=$'\t' read -r ajout suppr f; do
+    [ "$ajout" = - ] && continue
+    git cat-file -e "HEAD:$f" 2>/dev/null || continue
+    total=$((ajout + suppr))
+    if [ "$total" -gt "$PLAFOND_DIFF" ]; then
+      if [ "${GROS_DIFF_OK:-}" = 1 ]; then
+        avert "$f : $total lignes modifiées, accepté par GROS_DIFF_OK=1"
+      else
+        echec "$f : $total lignes modifiées. Réécriture complète ou fins de ligne converties ? Si voulu : GROS_DIFF_OK=1 git commit ..."
+      fi
+    fi
+  done < <(git diff --cached --numstat --diff-filter=M)
+else
+  etape "Longueur des fonctions Python (plafond $PLAFOND_FONCTION)"
+  py_fichiers=()
+  for f in "${fichiers[@]}"; do [[ "$f" == *.py ]] && py_fichiers+=("$f"); done
+  if [ "${#py_fichiers[@]}" -gt 0 ]; then
+    while IFS= read -r ligne; do avert "$ligne"; done < <("$PY" - "$PLAFOND_FONCTION" "${py_fichiers[@]}" <<'PYEOF'
+import ast, sys
+plafond = int(sys.argv[1])
+for chemin in sys.argv[2:]:
+    try:
+        arbre = ast.parse(open(chemin, encoding="utf-8").read())
+    except (SyntaxError, UnicodeDecodeError):
+        continue
+    for n in ast.walk(arbre):
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            taille = n.end_lineno - n.lineno + 1
+            if taille > plafond:
+                print(f"{chemin}:{n.lineno} {n.name} : {taille} lignes. Scinder ou justifier")
+PYEOF
+)
+  fi
+fi
+
+# --- Tests. À adapter : où sont les tests, et comment les lancer. ---
+# Le test d'un module x s'appelle tests/test_x.py, tests/x_test.py ou tests/x.test.(js|mjs).
+lister_tests() {
+  git ls-files -- 'tests/test_*.py' 'tests/*_test.py' 'tests/*.test.js' 'tests/*.test.mjs'
+}
+lancer_tests() { # $@ : fichiers de test
+  local py=() js=() t r=0
+  for t in "$@"; do case $t in *.py) py+=("$t") ;; *) js+=("$t") ;; esac; done
+  if [ ${#py[@]} -gt 0 ]; then
+    if [ -f pyproject.toml ] && command -v uv >/dev/null; then uv run pytest -q "${py[@]}" || r=1
+    else "$PY" -m pytest -q "${py[@]}" || r=1
+    fi
+  fi
+  if [ ${#js[@]} -gt 0 ]; then node --test "${js[@]}" || r=1; fi
+  return $r
+}
+# Tous les tests, sauf ceux que tests/lents.txt nomme (un chemin par ligne).
+tests_sans_lents() {
+  if [ -f "$TESTS_LENTS" ]; then
+    lister_tests | grep -vxF -f <(grep -v '^[[:space:]]*\(#\|$\)' "$TESTS_LENTS") || true
+  else
+    lister_tests
+  fi
+}
+# Les tests des modules touchés : un test indexé, ou celui qui porte le nom du module.
+tests_modules() {
+  local f nom tous
+  tous=$(lister_tests)
+  for f in "${fichiers[@]}"; do
+    [[ "$f" =~ \.(py|js|mjs)$ ]] || continue
+    if printf '%s\n' "$tous" | grep -qxF -- "$f"; then echo "$f"; continue; fi
+    [[ "$f" == tests/* || "$f" == .githooks/* ]] && continue  # fixture, conftest, hooks : couverts à la fusion
+    nom=$(basename "${f%.*}")
+    printf '%s\n' "$tous" | grep -E "(^|/)(test_${nom}\.py|${nom}_test\.py|${nom}\.test\.m?js)$" \
+      || echo "!$f"
+  done | sort -u
+}
+tester() { # $1 : 1 si bloquant ; ensuite les fichiers de test
+  local bloquant=$1; shift
+  if [ $# -eq 0 ]; then echo "  aucun test à lancer"; return 0; fi
+  echo "  $# fichier(s) de test"
+  lancer_tests "$@" && return 0
+  if [ "$bloquant" = 1 ]; then echec "tests en échec"
+  else avert "tests en échec, NON bloquant sur $BRANCHE : la fusion les rejouera"
+  fi
+}
+
+if [ "$MODE" = rapide ] && [ "$FUSION_EN_COURS" = 0 ]; then
+  bloquant=1
+  case "$BRANCHE" in chantier/*) bloquant=0 ;; esac
+  etape "Tests des modules touchés ($BRANCHE, $([ $bloquant = 1 ] && echo bloquants || echo non bloquants))"
+  liste=()
+  while IFS= read -r t; do
+    case $t in "!"*) avert "${t#!} : aucun test à son nom" ;; ?*) liste+=("$t") ;; esac
+  done < <(tests_modules)
+  tester "$bloquant" ${liste[@]+"${liste[@]}"}
+elif [ "$MODE" = complet ]; then
+  etape "Tous les tests"
+  mapfile -t liste < <(lister_tests)
+  tester 1 ${liste[@]+"${liste[@]}"}
+else
+  etape "Tests de la fusion : tous sauf les lents ($TESTS_LENTS)"
+  mapfile -t liste < <(tests_sans_lents)
+  tester 1 ${liste[@]+"${liste[@]}"}
+fi
+if [ "$MODE" != rapide ] && [ -d tests ]; then
+  arbitrages=$(grep -rIc 'ARBITRAGE' tests 2>/dev/null | awk -F: '{s+=$2} END {print s+0}')
+  echo "  tests marqués ARBITRAGE, en attente d'une décision : $arbitrages"
+fi
+
+if [ "$(git config --get core.hooksPath)" != .githooks ]; then
+  avert "hooks inactifs dans ce dépôt : git config core.hooksPath .githooks"
+fi
+
+echo "== Résultat ($MODE, $BRANCHE) : $echecs échec(s), $avertissements avertissement(s)"
+[ "$echecs" -eq 0 ]

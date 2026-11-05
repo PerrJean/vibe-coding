@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Avant chaque fusion : tout le dépôt, et tous les tests sauf les lents (tests/lents.txt),
+# bloquants. Dix minutes au plus : au-delà, ranger des tests dans tests/lents.txt.
+# Git ne l'appelle que pour une fusion qui crée un commit sans conflit : fusionner avec
+# git merge --no-ff (une avance rapide ne joue aucun hook). Une fusion en conflit se conclut
+# par un commit ordinaire, que pre-commit couvre.
+# Actif après : git config core.hooksPath .githooks (committé, donc vu par tous les worktrees).
+# Ne jamais contourner avec --no-verify : corriger, ou signaler à l'humain.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+exec bash ./verifier --fusion
