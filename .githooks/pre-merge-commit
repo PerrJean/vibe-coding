@@ -1,0 +1,6 @@
+#!/bin/sh
+# Hook de pre-merge-commit du dépôt public vibe-coding : une fusion sans
+# conflit crée son commit sans passer par pre-commit. La même garde de
+# publication contrôle donc le résultat de la fusion (voir .githooks/pre-commit).
+# Une fusion avec conflit se termine par git commit : pre-commit la contrôle.
+exec "$(git rev-parse --show-toplevel)/.githooks/pre-commit"
