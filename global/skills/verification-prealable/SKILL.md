@@ -22,8 +22,18 @@ Un point bloquant arrête la skill : dire à l'utilisateur quoi faire, ne pas r�
 7. Git Bash : si un hook non `.sample` existe (`git config core.hooksPath`, sinon `.git/hooks`), `bash -c "echo ok"`. « cygheap base mismatch » : bloquant, le signaler.
 8. Machine : mémoire libre (`Get-CimInstance Win32_OperatingSystem`). Si la passe tourne sans l'utilisateur : rappeler de vérifier la limite d'usage restante et de demander le maintien en éveil au lancement.
 9. Contexte : au-delà de 50 % pour cette session, recommander de lancer la passe dans une session neuve. Non bloquant.
+10. Dérive du modèle, jamais bloquant, rien n'est modifié ni dans le projet ni dans le dépôt du modèle :
+    - Dépôt du modèle : le dossier de cette skill est une jonction (Windows, `(Get-Item <dossier de la skill>).Target`) ou un lien (`readlink`) vers `<dépôt>/global/skills/verification-prealable` ; le dépôt est deux niveaux au-dessus. Pas de lien : contrôle sauté, « installateur du modèle non lancé ».
+    - Fraîcheur : `git -C <dépôt> rev-parse HEAD` comparé au hash de `git -C <dépôt> ls-remote origin HEAD` (mêmes variables qu'au contrôle 1). Différents : la comparaison porte sur le HEAD local, l'inscrire avec son hash court ; la mise à jour (`git pull` dans le dépôt) revient à l'utilisateur.
+    - Fichiers issus du modèle : ceux du projet (`git ls-files`) dont une des cinq premières lignes est `Modèle vibe-coding <version>`, en commentaire `#` ou non. Aucun : « aucun fichier issu du modèle », et s'arrêter là.
+    - Pour chacun, le fichier de même chemin dans `git -C <dépôt> show HEAD:modele/<chemin>`, sans fichier de travail. Comparer les deux sans leur ligne de version (copies dans le scratchpad, `git diff --no-index --numstat`). État : identique, écart (+a −b lignes), ou absent du modèle.
+    - Version du modèle : le premier titre `## X.Y` de `git -C <dépôt> show HEAD:CHANGELOG.md`, à côté de la version portée par chaque fichier.
+    - Les gabarits remplis par le projet (`SPEC.md`, `CONTRAT.md`, `PASSATION.md`, les étapes du registre, les seuils de `verifier`) s'écartent par nature : écart attendu, à signaler sans le juger. Un écart sur un hook ou une règle (`.githooks/`, `CLAUDE.md`, `.gitignore`) se signale comme dérive.
+    - Les fichiers de `modele/` absents du projet : leur nombre et leurs noms, sur une ligne.
 
 ## 2. Le tableau
 | Contrôle | Résultat | Bloquant |
+Première ligne : `| Heure du passage | AAAA-MM-JJ HH:MM | — |`, relevée au début de la skill (`Get-Date -Format 'yyyy-MM-dd HH:mm'`, ou `date '+%Y-%m-%d %H:%M'`).
 Résultat = le chiffre ou le message, avec la commande qui l'a produit.
+Sous le tableau, pour la dérive : une ligne par fichier issu du modèle (chemin, version portée, version du modèle, état).
 Sous le tableau : la référence des tests (vert, ou la liste des échecs), puis l'action exacte à faire par l'utilisateur pour chaque point bloquant. Ne rien lancer d'autre.
