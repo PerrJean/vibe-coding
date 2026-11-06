@@ -5,6 +5,7 @@
 - Première publication en dépôt public. Le guide, le modèle de projet, les skills et les hooks communs vivent désormais au même endroit et évoluent dans les mêmes commits.
 - Rendue généraliste : plus de nom de projet, d'outil interne ni de chemin personnel. Le guide vaut pour tout agent de code.
 - Ajouts issus de la pratique : la partie sur le travail en parallèle (index, configuration et hooks partagés entre sessions, une session ne défait pas le réglage d'une autre, hooks committés pour les worktrees), les fichiers générés livrés distingués des jetables, la règle de création et de revue des skills, un sixième champ « statut » au registre.
+- Partie C : un contrôle se range selon sa durée (commit, fusion, envoi), sinon il finit désactivé.
 
 ## 4, 5 novembre 2026
 
