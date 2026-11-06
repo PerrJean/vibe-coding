@@ -1,35 +1,60 @@
 # 0000 — Convention
 
-Un point = un fichier : `registre/NNNN-titre-court.md`, où NNNN est le plus
-grand numéro existant plus un. Aucun index tenu à la main : la liste se
-calcule (`ls registre/`, `grep`).
+Modèle vibe-coding 4.1
 
-Chaque fichier commence par son titre, `# NNNN — Titre`, puis six champs
-obligatoires en tableau :
+Commune à tous les projets qui suivent le modèle. **En vigueur depuis le
+2026-11-05** : les fiches antérieures gardent leur forme, leurs coûts et leur
+numéro ; rien n'est renormalisé ni renuméroté.
+
+## Un point = un fichier
+
+`registre/NNNN-titre-court.md`, numéro à quatre chiffres, le plus grand
+existant plus un, **un numéro par fichier** pour tout nouveau point. Un
+sous-chantier reste une section de sa fiche. Une annexe vit hors de
+`registre/`. Aucun index tenu à la main : la liste se calcule (`ls registre/`,
+`grep`).
+
+La fiche commence par :
+
+```
+# NNNN — Titre
 
 | nature | etape | statut | cout_estime | cout_reel | modele |
 |---|---|---|---|---|---|
-| `chantier` | `<etape>` | `ouvert` | 120 | | `<modele>` |
+| `chantier` | `<étape>` | `ouvert` | 120 | | `claude-opus-5-5` |
+```
+
+## Les six champs
 
 | champ | valeurs |
 |---|---|
-| **nature** | `chantier` · `defaut` · `arbitrage` |
-| **etape** | une des étapes du projet, déclarées ci-dessous |
+| **nature** | `chantier` · `defaut` · `arbitrage` — trois, pas d'autre |
+| **etape** | une valeur de la liste que ce projet déclare, ci-dessous |
 | **statut** | `ouvert` · `en cours` · `gelé` · `clos AAAA-MM-JJ` · `écarté AAAA-MM-JJ` · `remplacé par NNNN`, toujours écrit, jamais déduit |
-| **cout_estime** | un nombre seul, en milliers de tokens, avant de commencer |
-| **cout_reel** | un nombre seul, en milliers de tokens, à la clôture, relevé dans les compteurs de l'outil, jamais déclaré par l'agent |
-| **modele** | le modèle qui a fait le chantier |
+| **cout_estime** | un nombre seul, en milliers de tokens, posé avant de commencer |
+| **cout_reel** | un nombre seul, en milliers de tokens, relevé à la clôture dans les compteurs de l'outil, jamais déclaré par l'agent |
+| **modele** | l'identifiant exact (`claude-opus-5-5`) ; plusieurs séparés par une virgule |
 
-`cout_reel` reste vide tant que le point n'est pas clos. Un chantier mené en
-session principale n'a **aucun coût mesurable** : il passe par un sous-agent.
+- Une cellule de coût ne porte **qu'un nombre** ; le détail par sous-chantier
+  va sous le tableau.
+- `cout_reel` reste vide tant que le point n'est pas clos. Le coût d'un
+  sous-agent se relève par la session qui l'a lancé. Un chantier mené en
+  session principale n'a aucun coût mesurable : il passe par un sous-agent.
+- `remplacé par NNNN` marque une règle ou un arbitrage obsolète : on ne
+  l'applique plus, on lit le point qui le remplace. Le point remplacé garde
+  son fichier.
 
-Ce qui est décidé s'écrit sous une section `## Tranché`, que l'agent consulte
-avant toute question. Un point remplacé garde son fichier.
+## Le tranché
+
+Chaque fiche qui a reçu des réponses porte une section `## Tranché` : une
+ligne par réponse, datée, avec qui a tranché. L'agent la consulte avant toute
+question, et une question qui y figure n'est plus jamais présentée comme
+ouverte.
 
 ## Étapes de ce projet
 
-La convention commune ne les fixe pas : chaque projet déclare les siennes ici,
-au jour 0.
+La convention commune n'en définit aucune : chaque projet déclare ici les
+siennes, et `etape` ne prend que ces valeurs.
 
 - `<etape-1>` : <ce qu'elle couvre>
 - `<etape-2>` : <ce qu'elle couvre>
