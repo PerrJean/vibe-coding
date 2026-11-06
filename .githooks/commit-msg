@@ -1,0 +1,11 @@
+#!/bin/sh
+# Hook de commit-msg du dépôt public vibe-coding : le message de commit et les
+# identités d'auteur et de validateur passent par la garde de publication
+# (voir .githooks/garde_publication.py, mode --message).
+# Adresses permises dans le message : la masquée GitHub, la noreply d'Anthropic.
+# Auteur et validateur : adresse masquée GitHub obligatoire.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+PYTHON=python
+command -v python >/dev/null 2>&1 || PYTHON=python3
+PYTHONIOENCODING=utf-8 $PYTHON .githooks/garde_publication.py --message "$1" || exit 1
+echo "-> garde de publication (message et identités) : OK"
