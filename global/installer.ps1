@@ -2,8 +2,15 @@
 .SYNOPSIS
   Installe les règles, skills et hooks communs dans $env:USERPROFILE\.claude.
 .DESCRIPTION
-  Copie global\CLAUDE.md, global\skills\ et global\hooks\ vers le dossier de l'agent.
+  Relie le dossier de l'agent à ce dépôt, pour qu'un git pull suffise à mettre à jour :
+  une jonction par skill (.claude\skills\<skill> -> global\skills\<skill>), et une jonction
+  pour le dossier des hooks (.claude\hooks -> global\hooks). Une jonction ne demande pas de
+  droits d'administrateur, contrairement à un lien symbolique ; un lien physique, lui, garde
+  l'ancienne version dès que git réécrit le fichier. Déplacer le dépôt casse les jonctions :
+  relancer alors l'installateur.
+  global\CLAUDE.md est copié, pas relié : sa section Environnement est propre au poste.
   Tout fichier ou dossier remplacé est d'abord sauvegardé dans .claude\sauvegardes\.
+  Le dossier .claude\hooks n'est remplacé que s'il ne contient que des hooks de global\hooks.
   Un CLAUDE.md existant n'est jamais écrasé sans -Remplacer : le modèle est posé à côté,
   sous le nom CLAUDE.vibe-coding.md, pour fusion à la main (la section Environnement est personnelle).
 .EXAMPLE
@@ -36,6 +43,28 @@ function Sauvegarder([string]$cible) {
   }
 }
 
+function Est-JonctionVers([string]$cible, [string]$vers) {
+  $item = Get-Item -LiteralPath $cible -Force -ErrorAction SilentlyContinue
+  if ($null -eq $item -or $item.LinkType -ne 'Junction') { return $false }
+  $actuelle = [string]($item.Target | Select-Object -First 1)
+  return $actuelle.TrimEnd('\') -ieq $vers.TrimEnd('\')
+}
+
+function Lier([string]$cible, [string]$vers, [string]$nom) {
+  if (Est-JonctionVers $cible $vers) { Write-Host "Déjà relié : $nom"; return }
+  Sauvegarder $cible
+  Agir "Jonction : $nom -> $vers" {
+    $item = Get-Item -LiteralPath $cible -Force -ErrorAction SilentlyContinue
+    if ($null -ne $item) {
+      # Un lien se retire seul : Remove-Item -Recurse viderait aussi le dossier qu'il vise.
+      if ($item.LinkType) { [IO.Directory]::Delete($cible) } else { Remove-Item -LiteralPath $cible -Recurse -Force }
+    }
+    New-Item -ItemType Directory -Force -Path (Split-Path $cible) | Out-Null
+    New-Item -ItemType Junction -Path $cible -Target $vers | Out-Null
+  }
+}
+
+$refus = 0
 if (-not $Simulation) { New-Item -ItemType Directory -Force -Path $Destination | Out-Null }
 
 # Règles communes
@@ -52,30 +81,28 @@ if ((Test-Path -LiteralPath $claude) -and -not $Remplacer) {
   }
 }
 
-# Skills : un dossier par skill, remplacé en bloc
+# Skills : une jonction par skill ; les autres skills du poste ne sont pas touchées
 $skills = Join-Path $source 'skills'
 if (Test-Path -LiteralPath $skills) {
   foreach ($skill in Get-ChildItem -LiteralPath $skills -Directory) {
-    $cible = Join-Path $Destination "skills\$($skill.Name)"
-    Sauvegarder $cible
-    Agir "Skill installée : $($skill.Name)" {
-      if (Test-Path -LiteralPath $cible) { Remove-Item -LiteralPath $cible -Recurse -Force }
-      New-Item -ItemType Directory -Force -Path (Split-Path $cible) | Out-Null
-      Copy-Item -LiteralPath $skill.FullName -Destination $cible -Recurse -Force
-    }
+    Lier (Join-Path $Destination "skills\$($skill.Name)") $skill.FullName "skills\$($skill.Name)"
   }
 }
 
-# Hooks : fichier par fichier
+# Hooks : une jonction pour le dossier entier, s'il ne porte que des hooks de ce dépôt
 $hooks = Join-Path $source 'hooks'
 if (Test-Path -LiteralPath $hooks) {
-  foreach ($hook in Get-ChildItem -LiteralPath $hooks -File) {
-    $cible = Join-Path $Destination "hooks\$($hook.Name)"
-    Sauvegarder $cible
-    Agir "Hook installé : $($hook.Name)" {
-      New-Item -ItemType Directory -Force -Path (Split-Path $cible) | Out-Null
-      Copy-Item -LiteralPath $hook.FullName -Destination $cible -Force
-    }
+  $cible = Join-Path $Destination 'hooks'
+  $autres = @()
+  if ((Test-Path -LiteralPath $cible) -and -not (Est-JonctionVers $cible $hooks)) {
+    $connus = @(Get-ChildItem -LiteralPath $hooks -File | ForEach-Object { $_.Name })
+    $autres = @(Get-ChildItem -LiteralPath $cible -Force | Where-Object { $connus -notcontains $_.Name -and $_.Name -ne '__pycache__' })
+  }
+  if ($autres.Count -gt 0) {
+    Write-Host "REFUS : $cible contient des fichiers absents de global\hooks : $(($autres | ForEach-Object { $_.Name }) -join ', '). Les déplacer, puis relancer."
+    $refus = 1
+  } else {
+    Lier $cible $hooks 'hooks'
   }
   # Déclaration dans settings.json, avec la commande Python de Windows : python (python3 y est souvent un raccourci vers le Store).
   $options = @((Join-Path $source 'declarer_hooks.py'), $Destination, 'python')
@@ -87,3 +114,4 @@ if (Test-Path -LiteralPath $hooks) {
 if (-not $Simulation -and (Test-Path -LiteralPath $sauvegarde)) {
   Write-Host "Anciennes versions sauvegardées dans $sauvegarde"
 }
+exit $refus
