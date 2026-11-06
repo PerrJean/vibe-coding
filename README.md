@@ -74,7 +74,7 @@ Le pourquoi sert l'humain et coûte du contexte à l'agent. Il reste donc dans c
 ## Le jour 0, en une heure
 
 1. **Vérifier l'environnement** : git, connexion au dépôt distant, langage, shell. Ce qui manque se règle maintenant, pas au premier envoi.
-2. **Copier le dossier [modele/](modele/)**, puis activer ses hooks avec `git config core.hooksPath .githooks`. Git, le fichier de règles, les contrôles avant commit et l'exclusion des fichiers produits sont alors en place.
+2. **Copier le dossier [modele/](modele/)**, puis activer ses hooks avec `git config core.hooksPath .githooks` et les déclarer exécutables avec `git add --chmod=+x .githooks/pre-commit .githooks/pre-merge-commit .githooks/pre-push`. Sans cette dernière commande, le premier commit est refusé sous Windows. Git, le fichier de règles, les contrôles avant commit et l'exclusion des fichiers produits sont alors en place.
 3. **Décider : personnel ou à reprendre**, et choisir le langage en conséquence (règle 3).
 4. **L'interview, puis SPEC.md.** Phrase de départ : « Interviewe-moi sur ce besoin jusqu'à épuisement, puis écris la spec. »
 5. **CONTRAT.md**, une centaine de lignes au plus.

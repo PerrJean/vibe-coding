@@ -6,7 +6,7 @@
 - Rendue généraliste : plus de nom de projet, d'outil interne ni de chemin personnel. Le guide vaut pour tout agent de code.
 - Ajouts issus de la pratique : la partie sur le travail en parallèle (index, configuration et hooks partagés entre sessions, une session ne défait pas le réglage d'une autre, hooks committés pour les worktrees), les fichiers générés livrés distingués des jetables, la règle de création et de revue des skills, un sixième champ « statut » au registre.
 - Partie C : un contrôle se range selon sa durée (commit, fusion, envoi), sinon il finit désactivé.
-- Le bit exécutable : `git commit -- <chemins>` reste la règle pour un fichier déjà suivi ; un nouveau script passe par `git add --chmod=+x` et un commit sans chemin. Le pre-commit du modèle refuse un hook qui n'est pas en 100755 dans l'index.
+- Le bit exécutable : `git commit -- <chemins>` reste la règle pour un fichier déjà suivi ; un nouveau script passe par `git add --chmod=+x` et un commit sans chemin. Le pre-commit du modèle refuse un hook qui n'est pas en 100755 dans l'index ; le jour 0 du README donne la commande qui les y met.
 
 ## 4, 5 novembre 2026
 
