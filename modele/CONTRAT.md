@@ -1,5 +1,7 @@
 # Contrat : <projet>
 
+Modèle vibe-coding 4.1
+
 Cent lignes au plus. Au-delà, découper en plusieurs outils qui se passent des fichiers.
 
 ## Entrées

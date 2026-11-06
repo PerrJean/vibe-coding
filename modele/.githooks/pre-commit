@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Modèle vibe-coding 4.1
 # À chaque commit : les fichiers indexés (secrets, données, gros fichiers, termes interdits,
 # CONTRAT.md), puis les tests des modules touchés. Ces tests ne bloquent pas sur une branche
 # chantier/*, ils bloquent ailleurs. Le commit qui conclut une fusion en conflit reçoit les

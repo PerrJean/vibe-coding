@@ -1,5 +1,7 @@
 # Règles du projet
 
+Modèle vibe-coding 4.1
+
 ## Avant d'agir
 - Lis PASSATION.md et le dernier commit. Rien d'autre sans raison.
 - Avant de me poser une question, cherche la réponse dans registre/ (sections « Tranché »).
