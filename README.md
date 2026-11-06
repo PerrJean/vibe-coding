@@ -95,4 +95,4 @@ Deux non sur quatre : le projet a changé de régime. Découper, ou le faire aud
 
 Les versions précédentes et ce qui a changé sont dans [CHANGELOG.md](CHANGELOG.md).
 
-Les textes (ce README, les guides, le lexique, l'annexe) sont sous licence [CC BY 4.0](LICENSE-TEXTES) : tu peux les reprendre et les adapter, y compris en entreprise, en citant l'auteur. Le code (les dossiers `modele/` et `global/` : hooks, scripts, skills) est sous licence [MIT](LICENSE).
+Les textes (ce README, les guides, le lexique, l'annexe) sont sous licence [CC BY 4.0](LICENSE-TEXTES) : tu peux les reprendre et les adapter, y compris en entreprise, en citant l'auteur. Le code (les dossiers `modele/`, `global/` et `outils/` : hooks, scripts, skills) est sous licence [MIT](LICENSE).
