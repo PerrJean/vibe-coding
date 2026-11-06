@@ -31,7 +31,8 @@ La prochaine commande ne se recopie pas d'une passation précédente : jouer `gi
 
 ## 3. Commit
 L'index est commun à toutes les sessions du dossier : une session qui committe sans nommer de chemins emporte tout ce qui y est indexé. Donc rien n'attend dans l'index. Message au format des commits relus à l'étape 0, écrit par Write dans le scratchpad, puis :
-- fichiers que cette session est SEULE à avoir modifiés, `PASSATION.md` compris : `git commit -F <message> -- <chemins>` (prend le contenu du disque, laisse le reste de l'index) ;
+- fichiers entièrement à cette session et déjà suivis, `PASSATION.md` compris : `git commit -F <message> -- <chemins>` (prend le contenu du disque, laisse le reste de l'index) ;
+- nouveau script, ou fichier dont le mode change : dans la MÊME commande, `git diff --cached --quiet` (index non vide : s'arrêter, ce n'est pas à cette session), puis `git add --chmod=+x -- <fichier>`, `git commit -F <message>` sans chemin, et `git ls-files -s <fichier>` doit afficher 100755 ;
 - lignes seules d'un fichier partagé (étape 1.3) : dans la MÊME commande, `git diff --cached --quiet` (index non vide : s'arrêter, ce n'est pas à cette session), puis `git apply --cached <correctif>`, `git add -- <chemins seuls>` et `git commit -F <message>`.
 Puis `git show --stat HEAD` : s'il ne porte pas exactement les fichiers attendus, s'arrêter et le montrer à l'utilisateur.
 Pousser seulement si le projet le prescrit pour une passation ; sinon, le proposer à l'utilisateur.

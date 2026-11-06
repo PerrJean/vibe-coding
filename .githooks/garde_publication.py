@@ -9,6 +9,9 @@ Refuse un fichier qui contient :
   - une adresse e-mail ;
   - un nom propre : le nom de l'auteur ailleurs que dans LICENSE, ou un terme
     des listes privées.
+Refuse aussi tout hook de .githooks/ ou modele/.githooks/ (fichier sans
+extension) qui n'est pas en 100755 dans l'index : il ne s'exécuterait pas
+après un clone sous Linux ou macOS.
 
 Les listes privées vivent hors du dépôt : la publier publierait ce qu'elle
 protège. Leurs chemins se déclarent dans la configuration LOCALE de git, une
@@ -34,6 +37,7 @@ SECRETS = re.compile(
 CHEMINS = re.compile(r"[A-Za-z]:[\\/]+Users[\\/]|/(?:home|Users)/[A-Za-z0-9._-]")
 EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")
 LICENCE = "LICENSE"
+DOSSIERS_HOOKS = (".githooks", "modele/.githooks")
 
 
 def git(*args):
@@ -92,12 +96,22 @@ def contenus(mode):
         yield chemin, octets.decode("utf-8", "ignore")
 
 
+def hooks_hors_mode():
+    """Les hooks (fichiers sans extension de DOSSIERS_HOOKS) qui ne sont pas en 100755 dans l'index."""
+    sortie = git("ls-files", "-s", "-z", "--", *DOSSIERS_HOOKS)
+    for entree in (e.decode("utf-8", "replace") for e in sortie.split(b"\0") if e):
+        meta, chemin = entree.split("\t", 1)
+        if meta.split()[0] != "100755" and "." not in chemin.rsplit("/", 1)[-1]:
+            yield chemin
+
+
 def main(argv):
     if argv not in (["--index"], ["--disque"]):
         print(__doc__)
         return 2
     fautes = []
     try:
+        fautes += [(chemin, "hook hors du mode 100755 (git add --chmod=+x)") for chemin in hooks_hors_mode()]
         prives = mot_entier(termes_prives())
         licence = Path(git("rev-parse", "--show-toplevel").decode("utf-8").strip()) / LICENCE
         auteur = mot_entier(nom_auteur(licence.read_text(encoding="utf-8")))

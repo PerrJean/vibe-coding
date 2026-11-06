@@ -7,4 +7,11 @@
 # Actif après : git config core.hooksPath .githooks (committé, donc vu par tous les worktrees).
 # Ne jamais contourner avec --no-verify : corriger, ou signaler à l'humain.
 cd "$(git rev-parse --show-toplevel)" || exit 1
+# Un hook (fichier sans extension de .githooks/) doit être en 100755 dans l'index.
+hors_mode=$(git ls-files -s -- .githooks | awk -F'\t' '{ split($1, m, " "); n = split($2, p, "/"); if (m[1] != "100755" && index(p[n], ".") == 0) print $2 }')
+if [ -n "$hors_mode" ]; then
+  echo "REFUS : hook hors du mode 100755 dans l'index. Corriger : git add --chmod=+x <fichier>"
+  printf '  %s\n' $hors_mode
+  exit 1
+fi
 exec bash ./verifier --rapide

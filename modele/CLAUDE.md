@@ -28,7 +28,8 @@ Modèle vibe-coding 4.1
 
 ## Git
 - Toute session qui écrit travaille dans son propre worktree.
-- Commit après chaque étape qui marche, avec tes seuls fichiers (git commit -- <chemins>).
+- Commit après chaque étape qui marche, avec tes seuls fichiers.
+- Fichier entièrement à toi et déjà suivi : git commit -- <chemins>. Nouveau script, ou fichier dont le mode change : vérifie que l'index ne contient rien d'autre, git add --chmod=+x <fichier>, puis git commit sans chemin, puis git ls-files -s <fichier> doit afficher 100755.
 - Les fichiers interdits sont dans .gitignore et refusés par le hook. Ne jamais utiliser --no-verify.
 - Ne défais jamais un réglage git fait par une autre session : signale-le.
 - Fusionne avec git merge --no-ff : une avance rapide ne joue aucun hook.

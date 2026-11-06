@@ -24,7 +24,8 @@ Ce fichier vaut pour toutes les sessions. Les règles propres à un projet viven
 
 ## Git
 - Toute session qui écrit travaille dans son propre worktree.
-- Commit après chaque étape qui marche, avec tes seuls fichiers (git commit -- <chemins>).
+- Commit après chaque étape qui marche, avec tes seuls fichiers.
+- Fichier entièrement à toi et déjà suivi : git commit -- <chemins>. Nouveau script, ou fichier dont le mode change : vérifie que l'index ne contient rien d'autre, git add --chmod=+x <fichier>, puis git commit sans chemin, puis git ls-files -s <fichier> doit afficher 100755.
 - Ne jamais utiliser --no-verify. Un hook qui refuse se corrige, ou se signale.
 - Ne défais jamais un réglage git fait par une autre session : signale-le.
 - Rien n'est envoyé sur le dépôt distant sans ma demande.
