@@ -26,6 +26,14 @@ Ce qui manque se demande à l'utilisateur, rien ne s'invente. Un format se recop
 9. **Committer** sur la branche les seuls fichiers du chantier (`git add <fichiers>`, jamais `-A` ; un nouveau script suit la règle du bit exécutable du `CLAUDE.md`), contrôler `git diff --cached --stat` avant, l'identifiant dans le message. Avant la fusion, jouer la vérification complète dans le worktree. Un rouge absent de l'état de référence : ne pas fusionner, retour à l'étape 6. Vert : `git merge --no-ff chantier/<id>` dans la branche principale, pour que les hooks jouent, puis `git worktree remove <chemin>` et `git branch -d chantier/<id>`. Pousser selon la règle du projet ; si l'authentification échoue, donner la commande exacte (`git push origin <branche>`) sans réessayer.
 10. **Clore** par la voie du projet, selon `registre/0000-convention.md` s'il existe : `statut` à `clos AAAA-MM-JJ`, coût réel relevé au harnais, nature, étape, modèle. Montrer à l'utilisateur la fiche close et le commit, avec le nombre de tests, le nombre de tours de revue et toute décision prise hors spec. Puis lancer la skill `passation`.
 
+## Modèles (à l'essai)
+Le CLAUDE.md global déclare un modèle de plan et un modèle d'exécution. S'il n'en déclare pas, tout se fait avec le modèle courant.
+- Modèle de plan : la spec (étape 4) et la revue (étape 7).
+- Modèle d'exécution : les tests (étape 5) et le code (étape 6). Son prompt contient le plan en entier : il ne voit rien d'autre.
+- Remontée : l'exécutant échoue deux fois, ou s'écarte du plan, ou découvre une question que le plan ne tranche pas : retour au modèle de plan, qui complète le plan.
+- Petite correction (un fichier, quelques lignes) : pas de relais, le modèle courant la fait.
+- À la clôture, le champ modele liste les modèles utilisés, et la fiche note le nombre de remontées.
+
 ## Garde-fous
 - Avant chaque sous-agent : committer un point d'étape sur la branche du chantier ; nommer dans son prompt les fichiers qu'il ne touche pas ; interdire `git stash`, `checkout`, `reset`. Ne jamais utiliser `--no-verify`.
 - Au-delà de 80 % de contexte : committer un point d'étape sur la branche, lancer `passation` en nommant l'étape où reprendre, et s'arrêter.
