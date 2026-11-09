@@ -69,6 +69,7 @@ Et une règle d'économie : **avant d'écrire une fonction utilitaire, chercher 
 
 - **L'environnement se règle au jour 0.** Connexion au dépôt distant, shell, droits d'installation : ce qui manque arrête la dernière étape d'une session réussie, pas la première. La skill [verification-prealable](global/skills/) le contrôle avant une passe longue.
 - **Sous Windows**, un shell Linux (WSL2) évite la plupart des commandes qui échouent. À défaut, déclarer le shell dans le fichier de règles global pour que l'agent n'écrive pas de syntaxe incompatible.
+- **Les outils durables s'installent hors d'AppData.** Un agent qui tourne dans une application empaquetée peut voir ses écritures dans AppData redirigées vers le cache de l'application : des outils installés là peuvent devenir invisibles ou disparaître. Installe-les dans le dossier personnel, hors d'AppData, et vérifie au jour 0 où ils sont réellement installés.
 - **Les outils Python de base** : uv pour les environnements, ruff pour le format et les erreurs simples, pre-commit pour les contrôles, un vérificateur de types. Aucun ne demande de droits d'administration.
 - **Un fichier .gitattributes** fixe les fins de ligne une fois pour toutes.
 - **Une intégration continue** relance la commande de vérification à chaque envoi.
