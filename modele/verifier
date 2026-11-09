@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Modèle vibe-coding 4.1
+# Modèle vibe-coding 4.2
 # Commande de vérification unique : la même pour l'humain, l'agent et les hooks.
 # Les contrôles sont rangés par durée : un contrôle trop lent pour son moment finit désactivé.
 #   ./verifier --rapide   commit (pre-commit) : les fichiers indexés, puis les tests des

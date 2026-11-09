@@ -1,6 +1,6 @@
 # 0000 — Convention
 
-Modèle vibe-coding 4.1
+Modèle vibe-coding 4.2
 
 Commune à tous les projets qui suivent le modèle. **En vigueur depuis le
 2026-11-05** : les fiches antérieures gardent leur forme, leurs coûts et leur

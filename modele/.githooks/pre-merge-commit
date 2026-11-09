@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Modèle vibe-coding 4.1
+# Modèle vibe-coding 4.2
 # Avant chaque fusion : tout le dépôt, et tous les tests sauf les lents (tests/lents.txt),
 # bloquants. Dix minutes au plus : au-delà, ranger des tests dans tests/lents.txt.
 # Git ne l'appelle que pour une fusion qui crée un commit sans conflit : fusionner avec

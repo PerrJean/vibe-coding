@@ -1,6 +1,6 @@
 # Les commandements d'un projet vibe codé
 
-*Version 4.1, mise à jour le 5 novembre 2026.*
+*Version 4.2, mise à jour le 9 novembre 2026.*
 
 Ce guide s'adresse à toute personne qui fait écrire du code par un agent d'IA (Claude Code, Cursor, Codex ou un autre) sans être développeur. Il tient en quatorze règles, chacune avec son pourquoi.
 
