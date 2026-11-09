@@ -19,6 +19,8 @@ Il vient de la pratique : le retour d'expérience d'un premier projet vibe codé
 
 Le pourquoi sert l'humain et coûte du contexte à l'agent. Il reste donc dans ces pages, pas dans les fichiers que l'agent lit.
 
+Les pratiques qui n'ont pas encore marché dans deux projets sont rangées à part, dans la section [À tester](POUR-ALLER-PLUS-LOIN.md#g-à-tester) : chacune y dit ce qu'on en attend et comment on le mesure. Les règles de ce README y renvoient quand elles en ont une.
+
 ## Le socle
 
 ### Avant de coder

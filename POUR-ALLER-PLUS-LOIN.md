@@ -73,3 +73,27 @@ Et une règle d'économie : **avant d'écrire une fonction utilitaire, chercher 
 - **Une intégration continue** relance la commande de vérification à chaque envoi.
 - **Côté agent** : les skills pour les enchaînements répétés, les hooks pour les contrôles, les worktrees pour le parallèle, les environnements distants pour les passes longues, le bac à sable et le mode automatique pour les passes sans surveillance.
 - **Le langage se choisit d'après la destination de l'outil** : celui de l'équipe qui le reprendra, ou à défaut le plus adapté au problème.
+
+## G. À tester
+
+Une pratique éprouvée a marché dans au moins deux projets, et sa preuve est dans l'[annexe](ANNEXE.md). Une pratique à tester dit ce qu'on en attend, comment on le mesure et sur quel projet elle sera essayée. Elle passe dans les règles quand elle a marché dans deux projets, et pas avant : une idée qui paraît juste n'a encore rien prouvé.
+
+### Séparer le plan de l'exécution
+
+*À l'essai dans la skill [chantier](global/skills/chantier/SKILL.md).*
+
+Un modèle de plan écrit la spec et fait la revue. Un modèle d'exécution écrit les tests et le code, avec le plan pour seul contexte. Il rend la main au modèle de plan quand il échoue deux fois, s'écarte du plan ou tombe sur une question que le plan ne tranche pas. Une petite correction se fait sans relais.
+
+- Attendu : un coût réel plus bas sans plus de défauts, et un plan assez complet pour que l'exécutant remonte rarement.
+- Mesure : le coût réel, les défauts ouverts après la clôture et le nombre de remontées, notés dans chaque fiche du registre.
+- Essai : les prochains chantiers menés avec la skill chantier.
+
+### L'effort par étape
+
+*Prévu, pas encore à l'essai.*
+
+Un effort de raisonnement élevé pour la spec, le plan et la revue, normal pour les tests et le code.
+
+- Attendu : moins de défauts, le surcoût restant sur les étapes qui décident.
+- Mesure : le coût réel et les défauts du registre.
+- Essai : après celui de la séparation du plan et de l'exécution, pour ne pas mesurer deux changements à la fois.
