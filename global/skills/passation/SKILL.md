@@ -1,8 +1,10 @@
 ---
 name: passation
-description: Fin de session dans n'importe quel projet : committer les seuls fichiers de cette session, puis mettre à jour PASSATION.md à la racine (fait, reste, décisions, prochaine commande) pour qu'une autre session reprenne. À charger quand l'utilisateur dit « passation », « on s'arrête », « prépare la reprise ».
+description: Fin de session dans n'importe quel projet : committer les seuls fichiers de cette session, puis mettre à jour PASSATION.md à la racine (fait, reste, décisions, prochaine commande) pour qu'une autre session reprenne, et dire si la discussion peut être archivée. À charger quand l'utilisateur dit « passation », « on s'arrête », « prépare la reprise ».
 ---
 # Passation de session
+
+Version 4.4
 
 ## 0. Lire les règles du projet courant
 - Son `CLAUDE.md` : le registre des points s'il en nomme un, la section des fichiers à ne jamais committer, sa règle de commit et de push. Une règle absente se dit à l'utilisateur, elle ne s'invente pas.
@@ -38,3 +40,12 @@ L'index est commun à toutes les sessions du dossier : une session qui committe 
 Puis `git show --stat HEAD` : s'il ne porte pas exactement les fichiers attendus, s'arrêter et le montrer à l'utilisateur.
 Pousser seulement si le projet le prescrit pour une passation ; sinon, le proposer à l'utilisateur.
 Jamais `git add -A` ni `.`, ni `stash`, `restore`, `reset`, `checkout --`.
+
+## 4. Archivage
+Après la transmission, trois vérifications, chacune par sa commande jouée maintenant :
+1. Worktree propre : `git status --porcelain` vide, et `git log --oneline <principale>..HEAD` vide (`<principale>` : `git symbolic-ref --short refs/remotes/origin/HEAD` sans `origin/`, à défaut la ligne « HEAD branch » de `git remote show origin`).
+2. Envoi fait comme le prescrit la section « Envoi » du CLAUDE.md du projet. Sans cette section, tout envoi demande une validation : tant qu'elle n'est pas donnée, la vérification échoue. Envoi fait : `git log --oneline '@{u}..HEAD'` vide.
+3. Passation transmise : section de cette session dans PASSATION.md, fiche du registre à jour, ou rapport remis à la discussion maître.
+
+Les trois remplies : proposer une fois, en une ligne en fin de réponse, d'archiver la discussion. Sinon : une ligne sur ce qui manque (« push en attente de ta validation », « 2 commits non fusionnés »), sans proposer l'archivage.
+Discussion maître : la même vérification pour chacune de ses sous-discussions, dans son worktree ; proposer d'archiver celles qui sont closes, dire pour les autres ce qui manque.
