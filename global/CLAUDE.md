@@ -45,3 +45,4 @@ Ce fichier vaut pour toutes les sessions. Les règles propres à un projet viven
 
 ## Fin de session
 - Au-delà de 80 % de contexte : commit, note de passation, arrêt.
+- En fin de discussion, lancer passation, qui dit si la discussion peut être archivée.
