@@ -16,9 +16,13 @@ Ce dépôt est public. Tout ce qui y entre devient public, et reste dans l'histo
 - Toute session qui écrit travaille dans son propre worktree.
 - Commit après chaque étape qui marche, avec tes seuls fichiers. Un commit par point demandé.
 - Fichier entièrement à toi et déjà suivi : git commit -- <chemins>. Nouveau script, ou fichier dont le mode change : vérifie que l'index ne contient rien d'autre, git add --chmod=+x <fichier>, puis git commit sans chemin, puis git ls-files -s <fichier> doit afficher 100755.
-- Aucun push sans ma validation, donnée pour ces commits-là. Avant de demander : git log origin/main..HEAD.
 - Ne défais jamais un réglage git fait par une autre session : signale-le.
 - Fusionne avec git merge --no-ff : une avance rapide ne joue aucun hook.
+
+## Push
+- Push libre quand : le pre-push passe (garde sur la plage), les tests passent, et le diff relu ne contient aucune donnée personnelle, même absente des listes.
+- Sur main : seulement par git merge --no-ff d'une branche dont la CI est verte.
+- Demande toujours avant : push --force ou réécriture d'historique, suppression d'une branche distante, modification de .githooks/ ou des listes de vibe.listes, LICENSE*, et tout doute sur une donnée personnelle.
 
 ## Contenu
 - Textes (README, guides, lexique, annexe, CHANGELOG) sous CC BY 4.0 ; code (modele/, global/, outils/) sous MIT. Un nouveau dossier de code s'ajoute à la phrase de licence du README.
