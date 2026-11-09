@@ -31,6 +31,9 @@ EXT_CODE='py|js|mjs|cjs|ts|tsx|jsx|vue|svelte|html|htm|css|scss|sql|sh|bash|ps1|
 EXT_DONNEES='csv|tsv|xlsx|xls|jsonl|ndjson|parquet|db|sqlite|sqlite3'
 INTERDITS='(^|/)(\.env(\..*)?|.*\.pem|.*\.key|.*\.p12|id_rsa.*|id_ed25519.*|secrets/.*|sorties/.*|node_modules/.*|__pycache__/.*|\.venv/.*)$'
 AUTORISES='(^|/)\.env\.exemple$'
+RE_DONNEES="\.($EXT_DONNEES)\$"
+RE_CODE="\.($EXT_CODE)\$"
+RE_SOURCE='\.(py|js|mjs)$'
 SECRETS='(AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{40,}|sk-[A-Za-z0-9_-]{20,}|xox[abpr]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{35}|(password|passwd|mot_de_passe|secret|token|api_key)[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"'[:space:]]{8,})'
 
 # Python : python sous Windows (python3 y est souvent un raccourci vers le Store), python3 ailleurs.
@@ -70,17 +73,35 @@ est_livre() {
   [ "$(git check-attr livre -- "$1" | sed 's/.*: //')" = set ]
 }
 
+# Fonctions Python au-delà du plafond $1, dans les fichiers qui suivent.
+fonctions_longues() {
+  "$PY" - "$@" <<'PYEOF'
+import ast, sys
+plafond = int(sys.argv[1])
+for chemin in sys.argv[2:]:
+    try:
+        arbre = ast.parse(open(chemin, encoding="utf-8").read())
+    except (SyntaxError, UnicodeDecodeError):
+        continue
+    for n in ast.walk(arbre):
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            taille = n.end_lineno - n.lineno + 1
+            if taille > plafond:
+                print(f"{chemin}:{n.lineno} {n.name} : {taille} lignes. Scinder ou justifier")
+PYEOF
+}
+
 etape "Fichiers interdits : secrets, sorties, dépendances, données"
-for f in "${fichiers[@]}"; do
+for f in ${fichiers[@]+"${fichiers[@]}"}; do
   if [[ "$f" =~ $INTERDITS ]] && ! [[ "$f" =~ $AUTORISES ]]; then
     echec "$f : secret, sortie ou dépendance, à retirer de git (.gitignore)"
-  elif [[ "$f" =~ \.($EXT_DONNEES)$ ]] && ! est_livre "$f"; then
+  elif [[ "$f" =~ $RE_DONNEES ]] && ! est_livre "$f"; then
     echec "$f : fichier de données. Hors de git, ou déclaré « livre » dans .gitattributes"
   fi
 done
 
 etape "Poids des fichiers"
-for f in "${fichiers[@]}"; do
+for f in ${fichiers[@]+"${fichiers[@]}"}; do
   octets=$(contenu "$f" | wc -c | tr -d ' ')
   if [ "$octets" -gt "$PLAFOND_OCTETS" ] && ! est_livre "$f"; then
     echec "$f : $octets octets. Fichier produit ? Sinon, le déclarer « livre » dans .gitattributes"
@@ -88,8 +109,8 @@ for f in "${fichiers[@]}"; do
 done
 
 etape "Taille des fichiers de code (plafond $PLAFOND_LIGNES, limite dure $LIMITE_DURE_LIGNES)"
-for f in "${fichiers[@]}"; do
-  [[ "$f" =~ \.($EXT_CODE)$ ]] || continue
+for f in ${fichiers[@]+"${fichiers[@]}"}; do
+  [[ "$f" =~ $RE_CODE ]] || continue
   est_livre "$f" && continue
   lignes=$(contenu "$f" | wc -l | tr -d ' ')
   if [ "$lignes" -gt "$LIMITE_DURE_LIGNES" ]; then
@@ -104,7 +125,7 @@ if [ "$MODE" = rapide ]; then
   trouve=$(git diff --cached -U0 --diff-filter=ACMR | grep -E '^\+[^+]' | grep -En "$SECRETS" | head -5)
   [ -n "$trouve" ] && echec "secret probable dans les lignes ajoutées :" && echo "$trouve" | sed 's/^/         /'
 else
-  for f in "${fichiers[@]}"; do
+  for f in ${fichiers[@]+"${fichiers[@]}"}; do
     est_livre "$f" && continue
     grep -IEq "$SECRETS" -- "$f" 2>/dev/null && echec "$f : secret probable ($(grep -IEn "$SECRETS" -- "$f" | head -1 | cut -d: -f1)e ligne)"
   done
@@ -147,23 +168,10 @@ if [ "$MODE" = rapide ]; then
 else
   etape "Longueur des fonctions Python (plafond $PLAFOND_FONCTION)"
   py_fichiers=()
-  for f in "${fichiers[@]}"; do [[ "$f" == *.py ]] && py_fichiers+=("$f"); done
+  for f in ${fichiers[@]+"${fichiers[@]}"}; do [[ "$f" == *.py ]] && py_fichiers+=("$f"); done
   if [ "${#py_fichiers[@]}" -gt 0 ]; then
-    while IFS= read -r ligne; do avert "$ligne"; done < <("$PY" - "$PLAFOND_FONCTION" "${py_fichiers[@]}" <<'PYEOF'
-import ast, sys
-plafond = int(sys.argv[1])
-for chemin in sys.argv[2:]:
-    try:
-        arbre = ast.parse(open(chemin, encoding="utf-8").read())
-    except (SyntaxError, UnicodeDecodeError):
-        continue
-    for n in ast.walk(arbre):
-        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            taille = n.end_lineno - n.lineno + 1
-            if taille > plafond:
-                print(f"{chemin}:{n.lineno} {n.name} : {taille} lignes. Scinder ou justifier")
-PYEOF
-)
+    while IFS= read -r ligne; do avert "$ligne"; done \
+      < <(fonctions_longues "$PLAFOND_FONCTION" "${py_fichiers[@]}")
   fi
 fi
 
@@ -185,7 +193,10 @@ lancer_tests() { # $@ : fichiers de test
 }
 # Retire de l'entrée les tests que la liste $1 nomme (un chemin par ligne, # pour un commentaire).
 sauf() {
-  if [ -f "$1" ]; then grep -vxF -f <(grep -v '^[[:space:]]*\(#\|$\)' "$1") || true; else cat; fi
+  local motifs=
+  [ -f "$1" ] && motifs=$(grep -Ev '^[[:space:]]*(#|$)' "$1")
+  if [ -z "$motifs" ]; then cat; return; fi
+  grep -vxF -f <(printf '%s\n' "$motifs") || true
 }
 # En CI, les tests de tests/locaux.txt sont sautés : annoncés, jamais supprimés.
 hors_ci() {
@@ -201,8 +212,8 @@ tests_sans_lents() { lister_tests | sauf "$TESTS_LENTS"; }
 tests_modules() {
   local f nom tous
   tous=$(lister_tests)
-  for f in "${fichiers[@]}"; do
-    [[ "$f" =~ \.(py|js|mjs)$ ]] || continue
+  for f in ${fichiers[@]+"${fichiers[@]}"}; do
+    [[ "$f" =~ $RE_SOURCE ]] || continue
     if printf '%s\n' "$tous" | grep -qxF -- "$f"; then echo "$f"; continue; fi
     [[ "$f" == tests/* || "$f" == .githooks/* ]] && continue  # fixture, conftest, hooks : couverts à la fusion
     nom=$(basename "${f%.*}")
@@ -231,11 +242,13 @@ if [ "$MODE" = rapide ] && [ "$FUSION_EN_COURS" = 0 ]; then
   tester "$bloquant" ${liste[@]+"${liste[@]}"}
 elif [ "$MODE" = complet ]; then
   etape "Tous les tests"
-  mapfile -t liste < <(lister_tests | hors_ci)
+  liste=()
+  while IFS= read -r t; do liste+=("$t"); done < <(lister_tests | hors_ci)
   tester 1 ${liste[@]+"${liste[@]}"}
 else
   etape "Tests de la fusion : tous sauf les lents ($TESTS_LENTS)"
-  mapfile -t liste < <(tests_sans_lents | hors_ci)
+  liste=()
+  while IFS= read -r t; do liste+=("$t"); done < <(tests_sans_lents | hors_ci)
   tester 1 ${liste[@]+"${liste[@]}"}
 fi
 if [ "$MODE" != rapide ] && [ -d tests ]; then

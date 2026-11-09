@@ -1,5 +1,10 @@
 # Historique
 
+## À paraître
+
+- Modèle : `./verifier` tourne sous le bash 3.2 de macOS. `mapfile` y manquait : la liste des tests restait vide et la vérification finissait à 0 échec sans rien lancer. Les tableaux vides sous `set -u` et l'alternance `\|` propre à GNU grep sont corrigés aussi. `outils/tester_verifier.sh` lance `./verifier` dans un projet jetable, et le workflow du dépôt le joue avec `/bin/bash` sous macOS.
+- Le dépôt a son registre : `registre/0000-convention.md` renvoie à la convention du modèle et déclare les étapes du dépôt.
+
 ## 4.3, 9 novembre 2026
 
 - Garde de publication du dépôt : un mode `--plage <début>..<fin>` contrôle chaque commit d'une plage (son arbre entier, son message, les adresses de son auteur et de son validateur) et nomme les commits en faute. Le nouveau hook pre-push le joue sur chaque référence envoyée : une branche nouvelle est contrôlée sur tout son historique, une suppression de branche passe. `git push --no-verify` saute ce hook : seul un contrôle côté serveur couvre ce cas.

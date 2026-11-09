@@ -1,5 +1,6 @@
 # Contrôles du dépôt sur une machine neuve, Linux et macOS : la garde de publication,
-# puis le test de l'installateur de global/ (outils/tester_installateur.sh), dans un HOME jetable.
+# puis le test de l'installateur de global/ (outils/tester_installateur.sh), dans un HOME jetable,
+# puis ./verifier du modèle dans un projet jetable (outils/tester_verifier.sh).
 name: verifier-depot
 
 on:
@@ -37,3 +38,10 @@ jobs:
       # tout se joue dans un HOME jetable créé par le test lui-même.
       - name: Installateur, HOME temporaire
         run: ./outils/tester_installateur.sh
+
+      # ./verifier du modèle dans un projet jetable (outils/tester_verifier.sh), avec le bash
+      # du système : sous macOS, /bin/bash est le 3.2, celui que trouvent les projets du modèle.
+      - name: ./verifier du modèle, bash du système
+        run: |
+          if [ "$RUNNER_OS" = macOS ]; then b=/bin/bash; else b=bash; fi
+          "$b" ./outils/tester_verifier.sh "$b"
