@@ -34,6 +34,7 @@ Les pratiques qui n'ont pas encore marché dans deux projets sont rangées à pa
 
 **3. Décide dès le départ : outil personnel, ou outil à faire reprendre.** S'il doit être repris, nomme qui le reprendra et prends son langage. Sinon, prends le langage le plus adapté au problème.
 *Pourquoi : un outil écrit dans le mauvais langage pour sa destination se réécrit au moment de la reprise.*
+À tester : choisir aussi son niveau de contrôle, builder, éditeur ou agent ([choisir son niveau de contrôle](POUR-ALLER-PLUS-LOIN.md#choisir-son-niveau-de-contrôle)).
 
 ### Les premiers jours
 

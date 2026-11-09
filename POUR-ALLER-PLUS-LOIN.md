@@ -72,6 +72,7 @@ Et une règle d'économie : **avant d'écrire une fonction utilitaire, chercher 
 - **Les outils Python de base** : uv pour les environnements, ruff pour le format et les erreurs simples, pre-commit pour les contrôles, un vérificateur de types. Aucun ne demande de droits d'administration.
 - **Un fichier .gitattributes** fixe les fins de ligne une fois pour toutes.
 - **Une intégration continue** relance la commande de vérification à chaque envoi.
+- À tester : builder, éditeur ou agent, et l'export du code vérifié avant de commencer ([choisir son niveau de contrôle](#choisir-son-niveau-de-contrôle)).
 - **Côté agent** : les skills pour les enchaînements répétés, les hooks pour les contrôles, les worktrees pour le parallèle, les environnements distants pour les passes longues, le bac à sable et le mode automatique pour les passes sans surveillance.
 - **Le langage se choisit d'après la destination de l'outil** : celui de l'équipe qui le reprendra, ou à défaut le plus adapté au problème.
 
@@ -113,6 +114,22 @@ Tout le reste avance vite, jusqu'à chaque seuil d'exposition : du poste vers de
 - Attendu : aucune réécriture imposée par l'une de ces décisions au moment d'ouvrir l'outil à plus de monde.
 - Mesure : les décisions tranchées au jour 0, et les défauts du registre qui remettent l'une d'elles en cause.
 - Essai : le prochain projet destiné à d'autres personnes que son auteur.
+
+### Choisir son niveau de contrôle
+
+*À tester.*
+
+Trois familles d'outils, du plus rapide au plus autonome :
+
+- un builder va vite et inclut l'hébergement, mais laisse peu de contrôle sur le code ;
+- un éditeur donne le contrôle du code, et le déploiement est à ta charge ;
+- un agent travaille en autonomie dans ton propre dépôt.
+
+Quel que soit l'outil, vérifie avant de commencer que tu peux exporter ton code. Sinon, l'outil ne pourra jamais être repris.
+
+- Attendu : aucun projet bloqué chez son fournisseur au moment de la reprise.
+- Mesure : pour chaque projet, l'outil choisi et la date de l'export vérifié.
+- Essai : le prochain projet démarré dans un builder.
 
 ### Séparer le plan de l'exécution
 
