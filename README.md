@@ -1,6 +1,6 @@
 # Les commandements d'un projet vibe codé
 
-*Version 4.1, mise à jour le 5 novembre 2026.*
+*Version 4.2, mise à jour le 9 novembre 2026.*
 
 Ce guide s'adresse à toute personne qui fait écrire du code par un agent d'IA (Claude Code, Cursor, Codex ou un autre) sans être développeur. Il tient en quatorze règles, chacune avec son pourquoi.
 
@@ -19,18 +19,22 @@ Il vient de la pratique : le retour d'expérience d'un premier projet vibe codé
 
 Le pourquoi sert l'humain et coûte du contexte à l'agent. Il reste donc dans ces pages, pas dans les fichiers que l'agent lit.
 
+Les pratiques qui n'ont pas encore marché dans deux projets sont rangées à part, dans la section [À tester](POUR-ALLER-PLUS-LOIN.md#g-à-tester) : chacune y dit ce qu'on en attend et comment on le mesure. Les règles de ce README y renvoient quand elles en ont une.
+
 ## Le socle
 
 ### Avant de coder
 
 **1. Fais-toi interviewer, puis fais écrire la spec.** Demande à l'agent de te questionner sur le besoin, les cas limites et ce qui est hors périmètre, puis d'écrire la spec dans un fichier. Ensuite, une session neuve pour coder, avec la spec en référence.
 *Pourquoi : personne ne spécifie seul un domaine qu'il découvre. L'entretien fait remonter ce que tu ne savais pas devoir décider.*
+À tester : demander ce qui fait déjà l'essentiel du besoin ([partir de l'existant](POUR-ALLER-PLUS-LOIN.md#partir-de-lexistant)).
 
 **2. Écris le contrat : ce qui entre, ce qui sort, ce qui est hors périmètre.** S'il dépasse une centaine de lignes, découpe le projet en plusieurs outils qui se passent des fichiers.
 *Pourquoi : c'est la référence qui permet de dire non à l'agent quand il élargit le sujet.*
 
 **3. Décide dès le départ : outil personnel, ou outil à faire reprendre.** S'il doit être repris, nomme qui le reprendra et prends son langage. Sinon, prends le langage le plus adapté au problème.
 *Pourquoi : un outil écrit dans le mauvais langage pour sa destination se réécrit au moment de la reprise.*
+À tester : choisir aussi son niveau de contrôle, builder, éditeur ou agent ([choisir son niveau de contrôle](POUR-ALLER-PLUS-LOIN.md#choisir-son-niveau-de-contrôle)).
 
 ### Les premiers jours
 
@@ -39,12 +43,14 @@ Le pourquoi sert l'humain et coûte du contexte à l'agent. Il reste donc dans c
 
 **5. Le premier jour, un circuit complet qui tourne.** La plus petite version qui lit une vraie donnée, produit une vraie sortie et a un test vert. Ce circuit est concret et propre au premier cas : pas de couches, pas d'interfaces, pas de configuration générique. Ensuite, on l'épaissit cas réel par cas réel, sans jamais le casser, et on ne généralise qu'au deuxième cas (règle 7).
 *Pourquoi : construire les morceaux un par un et les assembler à la fin fait arriver tous les problèmes ensemble, et tard. Concevoir l'architecture d'avance revient au même : on la bâtit pour des cas qu'on n'a pas encore vus.*
+À tester : partir du gabarit officiel d'un framework ou d'un projet existant ([partir de l'existant](POUR-ALLER-PLUS-LOIN.md#partir-de-lexistant)). La skill [chercher-l-existant](global/skills/chercher-l-existant/SKILL.md) fait la recherche et vérifie les candidats.
 
 **6. Lis la donnée avant de la supposer.** Fais afficher vingt enregistrements réels avant de concevoir. Ce que la donnée ne tranche pas est une question pour toi, notée comme telle, jamais une hypothèse de l'agent.
 *Pourquoi : un nom de champ supposé au lieu d'être lu coûte des journées.*
 
 **7. Les valeurs hors du code dès le premier cas, la logique simple jusqu'au deuxième.** Un identifiant, un client ou un seuil va dans une table de référence. La logique, elle, reste spécifique au premier cas : on ne la généralise qu'au deuxième cas réel.
 *Pourquoi : une valeur en dur se recopie partout. Une abstraction bâtie sur un seul cas se trompe sur le suivant.*
+À tester : ce qui ne te différencie pas ne se code pas ([partir de l'existant](POUR-ALLER-PLUS-LOIN.md#partir-de-lexistant)).
 
 ### Au quotidien
 
@@ -75,7 +81,7 @@ Le pourquoi sert l'humain et coûte du contexte à l'agent. Il reste donc dans c
 
 1. **Vérifier l'environnement** : git, connexion au dépôt distant, langage, shell. Ce qui manque se règle maintenant, pas au premier envoi.
 2. **Copier le dossier [modele/](modele/)**, puis activer ses hooks avec `git config core.hooksPath .githooks` et les déclarer exécutables avec `git add --chmod=+x .githooks/pre-commit .githooks/pre-merge-commit .githooks/pre-push`. Sans cette dernière commande, le premier commit est refusé sous Windows. Git, le fichier de règles, les contrôles avant commit et l'exclusion des fichiers produits sont alors en place.
-3. **Décider : personnel ou à reprendre**, et choisir le langage en conséquence (règle 3).
+3. **Décider : personnel ou à reprendre**, et choisir le langage en conséquence (règle 3). À tester : trancher aussi les décisions irréversibles ([la liste](POUR-ALLER-PLUS-LOIN.md#décisions-irréversibles-et-seuils-dexposition)).
 4. **L'interview, puis SPEC.md.** Phrase de départ : « Interviewe-moi sur ce besoin jusqu'à épuisement, puis écris la spec. »
 5. **CONTRAT.md**, une centaine de lignes au plus.
 6. **Le circuit complet** : une vraie donnée lue, une vraie sortie, un test vert, committé.

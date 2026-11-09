@@ -1,4 +1,4 @@
-# Modèle vibe-coding 4.1
+# Modèle vibe-coding 4.2
 """Refuse les termes interdits, lus dans une liste hors du dépôt.
 
     <python> .githooks/termes_interdits.py <liste> --index [--auteur]

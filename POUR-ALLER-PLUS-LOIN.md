@@ -23,7 +23,7 @@ Deux règles d'organisation :
 - **Un artefact, un lecteur.** Un tableau de bord ou un rapport se découpe par question posée et par personne qui la pose, pas par taille.
 - **Si le projet a une interface, il part d'un design system**, celui de l'organisation si possible. Chaque décision y porte sa raison, et un contrôle refuse une couleur ou un composant hors catalogue.
 
-Et une règle d'économie : **avant d'écrire une fonction utilitaire, chercher si une bibliothèque le fait déjà.** Générer du HTML par concaténation de chaînes, par exemple, se remplace par un moteur de gabarits.
+Et une règle d'économie : **avant d'écrire une fonction utilitaire, chercher si une bibliothèque le fait déjà.** Générer du HTML par concaténation de chaînes, par exemple, se remplace par un moteur de gabarits. À tester : où chercher d'abord, et sur quelles preuves choisir une dépendance ([partir de l'existant](#partir-de-lexistant)).
 
 ## B. Le contexte, qui est le vrai budget
 
@@ -41,6 +41,7 @@ Et une règle d'économie : **avant d'écrire une fonction utilitaire, chercher 
 - **Un test qui reste vert quand on casse le code ne compte pas.** On casse volontairement le code de petites façons et on regarde si un test le détecte.
 - **Les tests vivent à côté du code, et restent plus simples que lui.** Dans un projet audité, les tests intégrés aux fichiers de code occupaient 21,8 % des lignes, et les deux fonctions les plus complexes du dépôt étaient des tests.
 - **Un contrôle se range selon sa durée** : quelques secondes au commit, une dizaine de minutes à la fusion, la liste complète à l'envoi. Un contrôle trop long à un moment fréquent finit désactivé.
+- À tester : ce qui se décide dès le jour 0, et la revue de sécurité à chaque seuil d'exposition ([décisions irréversibles et seuils d'exposition](#décisions-irréversibles-et-seuils-dexposition)).
 - **L'agent travaille avec les droits minimum.** Lecture seule par défaut, écriture seulement à l'étape qui l'exige, jamais d'abord en production.
 - **Les données personnelles, dès que le projet manipule des données réelles de personnes.** Structure réelle mais valeurs anonymisées dans les tests, rien dans git, rien dans les fichiers produits qui ne soit nécessaire. La taille du projet ne change rien : un prototype qui exporte des personnes est concerné.
 - **Un audit qualité à intervalles réguliers**, avec un prompt fixe et en lecture seule : composition du dépôt, taille, complexité, duplication, code mort, survie du code. Le premier projet audité aurait dû s'arrêter bien plus tôt : ses signaux étaient mesurables. La skill [audit-qualite](global/skills/) le fait.
@@ -68,8 +69,87 @@ Et une règle d'économie : **avant d'écrire une fonction utilitaire, chercher 
 
 - **L'environnement se règle au jour 0.** Connexion au dépôt distant, shell, droits d'installation : ce qui manque arrête la dernière étape d'une session réussie, pas la première. La skill [verification-prealable](global/skills/) le contrôle avant une passe longue.
 - **Sous Windows**, un shell Linux (WSL2) évite la plupart des commandes qui échouent. À défaut, déclarer le shell dans le fichier de règles global pour que l'agent n'écrive pas de syntaxe incompatible.
+- **Les outils durables s'installent hors d'AppData.** Un agent qui tourne dans une application empaquetée peut voir ses écritures dans AppData redirigées vers le cache de l'application : des outils installés là peuvent devenir invisibles ou disparaître. Installe-les dans le dossier personnel, hors d'AppData, et vérifie au jour 0 où ils sont réellement installés.
 - **Les outils Python de base** : uv pour les environnements, ruff pour le format et les erreurs simples, pre-commit pour les contrôles, un vérificateur de types. Aucun ne demande de droits d'administration.
 - **Un fichier .gitattributes** fixe les fins de ligne une fois pour toutes.
 - **Une intégration continue** relance la commande de vérification à chaque envoi.
+- À tester : builder, éditeur ou agent, et l'export du code vérifié avant de commencer ([choisir son niveau de contrôle](#choisir-son-niveau-de-contrôle)).
 - **Côté agent** : les skills pour les enchaînements répétés, les hooks pour les contrôles, les worktrees pour le parallèle, les environnements distants pour les passes longues, le bac à sable et le mode automatique pour les passes sans surveillance.
 - **Le langage se choisit d'après la destination de l'outil** : celui de l'équipe qui le reprendra, ou à défaut le plus adapté au problème.
+
+## G. À tester
+
+Une pratique éprouvée a marché dans au moins deux projets, et sa preuve est dans l'[annexe](ANNEXE.md). Une pratique à tester dit ce qu'on en attend, comment on le mesure et sur quel projet elle sera essayée. Elle passe dans les règles quand elle a marché dans deux projets, et pas avant : une idée qui paraît juste n'a encore rien prouvé.
+
+### Partir de l'existant
+
+*À tester.*
+
+Ce qui ne te différencie pas ne se code pas : un tableau de bord, une synchronisation ou un calcul standard viennent d'un outil ou d'une bibliothèque existante. Ce qui est propre au métier se code.
+
+- À l'interview (règle 1), une question de plus : « Quels outils de l'organisation, produits ou projets open source font déjà l'essentiel de ce besoin ? »
+- Le circuit du premier jour (règle 5) part du gabarit officiel d'un framework, ou d'un projet existant, quand il y en a un. Deux réserves : vérifier la licence, et ne pas partir d'un code mal fait, dont on hérite la dette.
+- On cherche d'abord une bibliothèque là où l'erreur coûte cher : découpage (SQL, HTML), protection des caractères, validation d'un format. Une dépendance se choisit sur preuves : nom exact vérifié, maintenance, adoption, failles connues, licence, dépendances ajoutées.
+- En fin de projet, demande à l'agent ce qu'une bibliothèque aurait remplacé, pour le savoir au projet suivant.
+
+La skill [chercher-l-existant](global/skills/chercher-l-existant/SKILL.md) fait cette recherche avant de coder un composant : elle classe le besoin, banal ou propre au métier, cherche dans l'ordre (outils de l'organisation, bibliothèque standard, open source, gabarits officiels), vérifie chaque candidat avec ses sources et n'installe rien.
+
+Première observation : l'audit d'un projet a relevé trois découpages de SQL faits à la main, et trois défauts déjà payés. C'est une observation dans un seul projet, pas encore une preuve.
+
+- Attendu : moins de code écrit pour des besoins banals, et moins de défauts dans le découpage et la validation.
+- Mesure : ce qu'une bibliothèque aurait remplacé, d'après la question de fin de projet, et les défauts du registre dans ces zones.
+- Essai : le prochain projet démarré.
+
+### Décisions irréversibles et seuils d'exposition
+
+*À tester.*
+
+Les décisions irréversibles se prennent correctement dès le jour 0, même pour un prototype :
+
+- où vivent les données ;
+- l'authentification ;
+- aucun secret dans le code ;
+- une séparation des données par client, si l'outil peut servir plusieurs organisations ;
+- aucune donnée personnelle stockée sans besoin.
+
+Tout le reste avance vite, jusqu'à chaque seuil d'exposition : du poste vers des collègues, puis vers des clients ou une URL publique. Avant de franchir un seuil, une revue de sécurité. Un prototype local, jetable et sans données personnelles n'en a pas besoin.
+
+- Attendu : aucune réécriture imposée par l'une de ces décisions au moment d'ouvrir l'outil à plus de monde.
+- Mesure : les décisions tranchées au jour 0, et les défauts du registre qui remettent l'une d'elles en cause.
+- Essai : le prochain projet destiné à d'autres personnes que son auteur.
+
+### Choisir son niveau de contrôle
+
+*À tester.*
+
+Trois familles d'outils, du plus rapide au plus autonome :
+
+- un builder va vite et inclut l'hébergement, mais laisse peu de contrôle sur le code ;
+- un éditeur donne le contrôle du code, et le déploiement est à ta charge ;
+- un agent travaille en autonomie dans ton propre dépôt.
+
+Quel que soit l'outil, vérifie avant de commencer que tu peux exporter ton code. Sinon, l'outil ne pourra jamais être repris.
+
+- Attendu : aucun projet bloqué chez son fournisseur au moment de la reprise.
+- Mesure : pour chaque projet, l'outil choisi et la date de l'export vérifié.
+- Essai : le prochain projet démarré dans un builder.
+
+### Séparer le plan de l'exécution
+
+*À l'essai dans la skill [chantier](global/skills/chantier/SKILL.md).*
+
+Un modèle de plan écrit la spec et fait la revue. Un modèle d'exécution écrit les tests et le code, avec le plan pour seul contexte. Il rend la main au modèle de plan quand il échoue deux fois, s'écarte du plan ou tombe sur une question que le plan ne tranche pas. Une petite correction se fait sans relais.
+
+- Attendu : un coût réel plus bas sans plus de défauts, et un plan assez complet pour que l'exécutant remonte rarement.
+- Mesure : le coût réel, les défauts ouverts après la clôture et le nombre de remontées, notés dans chaque fiche du registre.
+- Essai : les prochains chantiers menés avec la skill chantier.
+
+### L'effort par étape
+
+*Prévu, pas encore à l'essai.*
+
+Un effort de raisonnement élevé pour la spec, le plan et la revue, normal pour les tests et le code.
+
+- Attendu : moins de défauts, le surcoût restant sur les étapes qui décident.
+- Mesure : le coût réel et les défauts du registre.
+- Essai : après celui de la séparation du plan et de l'exécution, pour ne pas mesurer deux changements à la fois.

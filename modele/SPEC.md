@@ -1,6 +1,6 @@
 # Spec : <projet>
 
-Modèle vibe-coding 4.1
+Modèle vibe-coding 4.2
 
 Écrite après l'entretien. Toute réponse « je ne sais pas » va dans Questions ouvertes, pas dans une hypothèse.
 

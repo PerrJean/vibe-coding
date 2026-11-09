@@ -7,14 +7,17 @@
 | Arbitrage | Une règle métier que la donnée ne tranche pas, et que seul l'humain peut décider |
 | Branche | Une ligne de travail parallèle dans git, fusionnée ensuite dans la branche principale |
 | Branche principale (main) | La version de référence du projet |
+| Builder | Un outil qui construit et héberge une application à partir de demandes en langage courant. Il va vite, mais laisse peu de contrôle sur le code |
 | CI, intégration continue | Une machine qui relance les contrôles à chaque envoi de code, indépendamment de ton poste |
 | Commit | Un instantané enregistré du projet, auquel on peut revenir |
 | Complexité | Le nombre de chemins possibles dans une fonction. Au-delà de quelques dizaines, elle devient difficile à comprendre et à tester |
 | Contexte | Tout ce que l'agent a en mémoire pendant une session. Il coûte à chaque échange et se dégrade quand il est plein |
 | Contrat | Ce qui entre dans l'outil, ce qui en sort, et ce qui est hors périmètre |
+| Décision irréversible | Un choix qu'on ne change plus tard qu'en réécrivant : où vivent les données, l'authentification, la séparation des données par client |
 | Dépôt | Le dossier du projet suivi par git, avec tout son historique |
 | Diff | La différence entre deux versions d'un fichier, ligne par ligne |
 | Duplication | Du code copié à plusieurs endroits. Une correction faite à un endroit ne passe pas aux autres |
+| Gabarit | Un projet de départ fourni par un framework ou une équipe, déjà organisé et qui tourne, sur lequel on construit au lieu de partir d'une page blanche |
 | Hook | Un contrôle déclenché automatiquement, par exemple avant chaque commit ou après chaque modification de l'agent |
 | Index | La zone où git prépare le prochain commit. Elle est commune à toutes les sessions qui travaillent dans le même dossier |
 | KISS, YAGNI | « Fais simple » et « tu n'en auras pas besoin » : ne rien construire pour un besoin hypothétique |
@@ -23,6 +26,7 @@
 | Push | L'envoi des commits locaux vers le dépôt distant |
 | Registre | La liste des chantiers, défauts et arbitrages, un fichier par point, avec leur statut et leur coût |
 | Session | Une conversation avec l'agent, avec son propre contexte |
+| Seuil d'exposition | Le moment où un outil s'ouvre à plus de monde : du poste vers des collègues, puis vers des clients ou une URL publique |
 | Skill | Un ensemble d'instructions que l'agent charge seulement quand la tâche le demande |
 | Sous-agent | Un agent lancé par l'agent principal pour une tâche précise, dans un contexte neuf |
 | Spec | La description de ce que l'outil doit faire, écrite avant de coder |

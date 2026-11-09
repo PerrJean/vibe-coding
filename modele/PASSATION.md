@@ -1,6 +1,6 @@
 # Passation
 
-Modèle vibe-coding 4.1
+Modèle vibe-coding 4.2
 
 Réécrite à chaque fin de session. La session suivante lit ce fichier et le dernier commit, rien d'autre sans raison.
 

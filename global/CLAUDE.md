@@ -13,6 +13,11 @@ Ce fichier vaut pour toutes les sessions. Les règles propres à un projet viven
 - Outils disponibles : <git, gh, uv, ruff, ...>
 - Langue des échanges : <français>
 
+## Modèles
+À remplir pour la section « Modèles (à l'essai) » de la skill chantier. Laissée vide : tout se fait avec le modèle courant.
+- Modèle de plan (spec, revue) : <identifiant du modèle>
+- Modèle d'exécution (tests, code) : <identifiant du modèle>
+
 ## Avant d'agir
 - Une tâche par demande. Si elle touche plus de deux fichiers, dis-le avant de commencer.
 - Une décision déjà prise est dans un fichier du projet (registre/, SPEC.md, CONTRAT.md). Cherche-la avant de me poser la question.

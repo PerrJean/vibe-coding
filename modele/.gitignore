@@ -1,4 +1,4 @@
-# Modèle vibe-coding 4.1
+# Modèle vibe-coding 4.2
 # Secrets : restent sur le poste, jamais dans git
 .env
 .env.*
