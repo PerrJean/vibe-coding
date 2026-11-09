@@ -4,6 +4,7 @@
 
 - Modèle : `./verifier` tourne sous le bash 3.2 de macOS. `mapfile` y manquait : la liste des tests restait vide et la vérification finissait à 0 échec sans rien lancer. Les tableaux vides sous `set -u` et l'alternance `\|` propre à GNU grep sont corrigés aussi. `outils/tester_verifier.sh` lance `./verifier` dans un projet jetable, et le workflow du dépôt le joue avec `/bin/bash` sous macOS.
 - Skill passation, version 4.4 : une dernière étape « Archivage » vérifie que le worktree est propre et fusionné, que l'envoi est fait selon la section « Envoi » du CLAUDE.md du projet (sans elle, tout envoi demande une validation) et que la passation est transmise. Les trois remplies, elle propose une fois d'archiver la discussion ; sinon, elle dit ce qui manque. La discussion maître le fait pour chaque sous-discussion. `global/CLAUDE.md` demande de lancer passation en fin de discussion.
+- CLAUDE.md du dépôt : la section « Push » devient « Envoi », le nom que lit la skill passation. Une branche fusionnée dans main avec une CI verte est retirée sans demander : worktree, branche locale, branche distante. Seule la suppression d'une branche distante non fusionnée demande encore une validation.
 - Le dépôt a son registre : `registre/0000-convention.md` renvoie à la convention du modèle et déclare les étapes du dépôt.
 
 ## 4.3, 9 novembre 2026
