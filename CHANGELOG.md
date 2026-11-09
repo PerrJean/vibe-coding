@@ -3,6 +3,7 @@
 ## À paraître
 
 - Garde de publication du dépôt : un mode `--plage <début>..<fin>` contrôle chaque commit d'une plage (son arbre entier, son message, les adresses de son auteur et de son validateur) et nomme les commits en faute. Le nouveau hook pre-push le joue sur chaque référence envoyée : une branche nouvelle est contrôlée sur tout son historique, une suppression de branche passe. `git push --no-verify` saute ce hook : seul un contrôle côté serveur couvre ce cas.
+- CLAUDE.md du dépôt : le push n'attend plus de validation quand le pre-push et les tests passent et que le diff relu ne contient aucune donnée personnelle. main ne reçoit qu'une fusion d'une branche dont la CI est verte. La validation reste demandée pour un push forcé, une suppression de branche distante, une modification de la garde ou de ses listes, les licences, et tout doute sur une donnée personnelle.
 
 ## 4.2, 9 novembre 2026
 
