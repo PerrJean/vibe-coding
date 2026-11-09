@@ -1,5 +1,9 @@
 # Historique
 
+## À paraître
+
+- Garde de publication du dépôt : un mode `--plage <début>..<fin>` contrôle chaque commit d'une plage (son arbre entier, son message, les adresses de son auteur et de son validateur) et nomme les commits en faute. Le nouveau hook pre-push le joue sur chaque référence envoyée : une branche nouvelle est contrôlée sur tout son historique, une suppression de branche passe. `git push --no-verify` saute ce hook : seul un contrôle côté serveur couvre ce cas.
+
 ## 4.2, 9 novembre 2026
 
 - Partie G du guide, « À tester » : une pratique y entre avec ce qu'on en attend, sa mesure et le projet où elle sera essayée, et passe dans les règles quand elle a marché dans deux projets. Le README l'annonce ; les règles 1, 3, 5 et 7, le jour 0 et les parties A, C et F y renvoient.

@@ -1,0 +1,17 @@
+#!/bin/sh
+# Hook de pre-push du dépôt public vibe-coding : chaque commit envoyé passe par
+# la garde de publication (voir .githooks/garde_publication.py, mode --plage) :
+# son arbre entier, son message, les adresses de son auteur et de son validateur.
+# git écrit sur l'entrée standard une ligne par référence envoyée :
+#   <réf. locale> <SHA local> <réf. distante> <SHA distant>
+# Branche nouvelle (SHA distant à zéro) : tout son historique est contrôlé.
+# Suppression de branche (SHA local à zéro) : rien à contrôler.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+PYTHON=python
+command -v python >/dev/null 2>&1 || PYTHON=python3
+statut=0
+while read -r ref_locale sha_local ref_distante sha_distant; do
+    PYTHONIOENCODING=utf-8 $PYTHON .githooks/garde_publication.py --plage "$sha_distant..$sha_local" </dev/null || statut=1
+done
+[ "$statut" -eq 0 ] || exit 1
+echo "-> garde de publication (commits envoyés) : OK"
