@@ -1,0 +1,29 @@
+# Modèle vibe-coding 4.3
+# Lance ./verifier à chaque push, sur une machine neuve.
+# CI est posée par GitHub Actions : ./verifier saute alors les tests nommés dans tests/locaux.txt
+# (données locales, secret) et le contrôle des termes interdits, dont la liste reste sur le poste.
+name: verifier
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verifier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      # À adapter : les dépendances du projet (pip install -r ..., uv sync, npm ci).
+      - name: Outils de test
+        run: python -m pip install pytest
+      - name: Hooks du dépôt
+        run: git config core.hooksPath .githooks
+      - name: ./verifier
+        run: ./verifier

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Modèle vibe-coding 4.2
+# Modèle vibe-coding 4.3
 # Avant chaque envoi : tout le dépôt, et la liste complète des tests, lents compris, bloquants.
 # Actif après : git config core.hooksPath .githooks (committé, donc vu par tous les worktrees).
 # Ne jamais contourner avec --no-verify : corriger, ou signaler à l'humain.

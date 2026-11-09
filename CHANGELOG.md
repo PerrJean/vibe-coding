@@ -1,9 +1,13 @@
 # Historique
 
-## À paraître
+## 4.3, 9 novembre 2026
 
 - Garde de publication du dépôt : un mode `--plage <début>..<fin>` contrôle chaque commit d'une plage (son arbre entier, son message, les adresses de son auteur et de son validateur) et nomme les commits en faute. Le nouveau hook pre-push le joue sur chaque référence envoyée : une branche nouvelle est contrôlée sur tout son historique, une suppression de branche passe. `git push --no-verify` saute ce hook : seul un contrôle côté serveur couvre ce cas.
 - CLAUDE.md du dépôt : le push n'attend plus de validation quand le pre-push et les tests passent et que le diff relu ne contient aucune donnée personnelle. main ne reçoit qu'une fusion d'une branche dont la CI est verte. La validation reste demandée pour un push forcé, une suppression de branche distante, une modification de la garde ou de ses listes, les licences, et tout doute sur une donnée personnelle.
+- Installation vérifiée sous Linux (WSL2) : liens à la place des jonctions, hooks déclarés avec python3, bit exécutable conservé au clone. `outils/tester_installateur.sh` rejoue ces contrôles dans un HOME jetable, sous macOS et Linux.
+- Skill verification-prealable : le dépôt du modèle est trois niveaux au-dessus du lien de la skill, pas deux. Avec deux, le contrôle de dérive cherchait `modele/` dans `global/`.
+- Modèle : `.github/workflows/verifier.yml` lance `./verifier` à chaque push, sur Ubuntu. En CI, `./verifier` saute les tests nommés dans `tests/locaux.txt` (données locales, secret) et le contrôle des termes interdits si leur liste est absente, et l'annonce ; sur le poste, tout est lancé. Le CLAUDE.md du modèle le dit à l'agent.
+- Dépôt : un workflow lance la garde de publication et le test de l'installateur, sur Ubuntu et macOS. Sans liste privée en CI, la garde y reçoit une liste au terme introuvable : les termes privés restent contrôlés par le hook, sur le poste.
 
 ## 4.2, 9 novembre 2026
 

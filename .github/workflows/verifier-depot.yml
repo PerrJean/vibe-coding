@@ -1,0 +1,39 @@
+# Contrôles du dépôt sur une machine neuve, Linux et macOS : la garde de publication,
+# puis le test de l'installateur de global/ (outils/tester_installateur.sh), dans un HOME jetable.
+name: verifier-depot
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verifier:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      # La garde refuse sans liste privée, et les vraies listes ne quittent pas le poste.
+      # La CI déclare une liste d'un seul terme introuvable : toutes les autres règles
+      # s'appliquent (secrets, chemins, adresses, nom de l'auteur, mode des hooks).
+      # Les termes privés ne sont contrôlés que par le hook, sur le poste.
+      - name: Garde de publication
+        run: |
+          liste="$RUNNER_TEMP/liste-ci.txt"
+          echo "terme-absent-$GITHUB_RUN_ID" > "$liste"
+          git config --add vibe.listes "$liste"
+          PYTHONIOENCODING=utf-8 python3 .githooks/garde_publication.py --disque
+          echo "garde de publication : OK"
+
+      # Simulation, installation, liens, python3, hooks, deuxième passage, contrôle de dérive :
+      # tout se joue dans un HOME jetable créé par le test lui-même.
+      - name: Installateur, HOME temporaire
+        run: ./outils/tester_installateur.sh

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Modèle vibe-coding 4.2
+# Modèle vibe-coding 4.3
 # Commande de vérification unique : la même pour l'humain, l'agent et les hooks.
 # Les contrôles sont rangés par durée : un contrôle trop lent pour son moment finit désactivé.
 #   ./verifier --rapide   commit (pre-commit) : les fichiers indexés, puis les tests des
@@ -7,6 +7,9 @@
 #   ./verifier --fusion   fusion (pre-merge-commit) : tout le dépôt, tous les tests sauf
 #                         les lents (tests/lents.txt). Dix minutes au plus.
 #   ./verifier            envoi (pre-push) : tout le dépôt, tous les tests.
+# En CI (variable CI posée, comme sur GitHub Actions) : les tests nommés dans tests/locaux.txt
+# (données locales, secret) sont sautés, et le contrôle des termes interdits l'est si la liste
+# est absente. Ils restent lancés sur le poste.
 # Exemple à adapter : les seuils sont en tête, les tests dans lister_tests et lancer_tests.
 
 set -u
@@ -19,6 +22,7 @@ PLAFOND_OCTETS=500000     # au-delà : échec, sauf fichier déclaré « livre �
 PLAFOND_DIFF=400          # lignes modifiées par fichier existant en un commit (GROS_DIFF_OK=1 pour passer)
 PLAFOND_CONTRAT=100       # lignes de CONTRAT.md : au-delà, c'est le projet qui se découpe
 TESTS_LENTS=tests/lents.txt
+TESTS_LOCAUX=tests/locaux.txt   # tests qui demandent des données locales ou un secret : sautés en CI
 # Termes refusés dans les fichiers et dans l'auteur des commits (employeur, clients, projets
 # internes). Liste hors du dépôt. Vide ("") : contrôle désactivé, décision à prendre au jour 0.
 LISTE_INTERDITS="$HOME/.config/termes-interdits.txt"
@@ -109,6 +113,8 @@ fi
 etape "Termes interdits"
 if [ -z "$LISTE_INTERDITS" ]; then
   echo "  contrôle désactivé (LISTE_INTERDITS vide dans ./verifier)"
+elif [ -n "${CI:-}" ] && [ ! -f "$LISTE_INTERDITS" ]; then
+  echo "  sauté en CI : la liste vit hors du dépôt, le contrôle a lieu sur le poste"
 elif [ "$MODE" = rapide ]; then
   "$PY" .githooks/termes_interdits.py "$LISTE_INTERDITS" --index --auteur || echec "terme interdit ou liste absente (voir ci-dessus)"
 else
@@ -177,14 +183,20 @@ lancer_tests() { # $@ : fichiers de test
   if [ ${#js[@]} -gt 0 ]; then node --test "${js[@]}" || r=1; fi
   return $r
 }
-# Tous les tests, sauf ceux que tests/lents.txt nomme (un chemin par ligne).
-tests_sans_lents() {
-  if [ -f "$TESTS_LENTS" ]; then
-    lister_tests | grep -vxF -f <(grep -v '^[[:space:]]*\(#\|$\)' "$TESTS_LENTS") || true
-  else
-    lister_tests
-  fi
+# Retire de l'entrée les tests que la liste $1 nomme (un chemin par ligne, # pour un commentaire).
+sauf() {
+  if [ -f "$1" ]; then grep -vxF -f <(grep -v '^[[:space:]]*\(#\|$\)' "$1") || true; else cat; fi
 }
+# En CI, les tests de tests/locaux.txt sont sautés : annoncés, jamais supprimés.
+hors_ci() {
+  if [ -z "${CI:-}" ]; then cat; return; fi
+  local tous restants
+  tous=$(cat); restants=$(printf '%s\n' "$tous" | sauf "$TESTS_LOCAUX")
+  echo "  sautés en CI ($TESTS_LOCAUX) : $(( $(printf '%s\n' "$tous" | grep -c .) - $(printf '%s\n' "$restants" | grep -c .) ))" >&2
+  printf '%s\n' "$restants" | grep . || true
+}
+# Tous les tests, sauf ceux que tests/lents.txt nomme.
+tests_sans_lents() { lister_tests | sauf "$TESTS_LENTS"; }
 # Les tests des modules touchés : un test indexé, ou celui qui porte le nom du module.
 tests_modules() {
   local f nom tous
@@ -215,15 +227,15 @@ if [ "$MODE" = rapide ] && [ "$FUSION_EN_COURS" = 0 ]; then
   liste=()
   while IFS= read -r t; do
     case $t in "!"*) avert "${t#!} : aucun test à son nom" ;; ?*) liste+=("$t") ;; esac
-  done < <(tests_modules)
+  done < <(tests_modules | hors_ci)
   tester "$bloquant" ${liste[@]+"${liste[@]}"}
 elif [ "$MODE" = complet ]; then
   etape "Tous les tests"
-  mapfile -t liste < <(lister_tests)
+  mapfile -t liste < <(lister_tests | hors_ci)
   tester 1 ${liste[@]+"${liste[@]}"}
 else
   etape "Tests de la fusion : tous sauf les lents ($TESTS_LENTS)"
-  mapfile -t liste < <(tests_sans_lents)
+  mapfile -t liste < <(tests_sans_lents | hors_ci)
   tester 1 ${liste[@]+"${liste[@]}"}
 fi
 if [ "$MODE" != rapide ] && [ -d tests ]; then
