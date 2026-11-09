@@ -8,6 +8,7 @@ description: Fin de session dans n'importe quel projet : committer les seuls fic
 - Son `CLAUDE.md` : le registre des points s'il en nomme un, la section des fichiers à ne jamais committer, sa règle de commit et de push. Une règle absente se dit à l'utilisateur, elle ne s'invente pas.
 - `git log -3` : le format réel des messages de commit.
 - `PASSATION.md` s'il existe : son format fait foi. S'il est absent, le créer au format ci-dessous, et le dire.
+- Si le dépôt de configuration personnelle déclaré dans le CLAUDE.md global a des écarts, le signaler.
 
 ## 1. Les fichiers de CETTE session
 1. `git status --porcelain`. Ne retenir que les chemins que cette session a écrits (ses Edit/Write, les commandes qu'elle a lancées). Un fichier qu'elle n'a pas touché appartient à une autre session : le laisser.
