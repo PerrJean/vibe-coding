@@ -23,7 +23,7 @@ Deux règles d'organisation :
 - **Un artefact, un lecteur.** Un tableau de bord ou un rapport se découpe par question posée et par personne qui la pose, pas par taille.
 - **Si le projet a une interface, il part d'un design system**, celui de l'organisation si possible. Chaque décision y porte sa raison, et un contrôle refuse une couleur ou un composant hors catalogue.
 
-Et une règle d'économie : **avant d'écrire une fonction utilitaire, chercher si une bibliothèque le fait déjà.** Générer du HTML par concaténation de chaînes, par exemple, se remplace par un moteur de gabarits.
+Et une règle d'économie : **avant d'écrire une fonction utilitaire, chercher si une bibliothèque le fait déjà.** Générer du HTML par concaténation de chaînes, par exemple, se remplace par un moteur de gabarits. À tester : où chercher d'abord, et sur quelles preuves choisir une dépendance ([partir de l'existant](#partir-de-lexistant)).
 
 ## B. Le contexte, qui est le vrai budget
 
@@ -77,6 +77,23 @@ Et une règle d'économie : **avant d'écrire une fonction utilitaire, chercher 
 ## G. À tester
 
 Une pratique éprouvée a marché dans au moins deux projets, et sa preuve est dans l'[annexe](ANNEXE.md). Une pratique à tester dit ce qu'on en attend, comment on le mesure et sur quel projet elle sera essayée. Elle passe dans les règles quand elle a marché dans deux projets, et pas avant : une idée qui paraît juste n'a encore rien prouvé.
+
+### Partir de l'existant
+
+*À tester.*
+
+Ce qui ne te différencie pas ne se code pas : un tableau de bord, une synchronisation ou un calcul standard viennent d'un outil ou d'une bibliothèque existante. Ce qui est propre au métier se code.
+
+- À l'interview (règle 1), une question de plus : « Quels outils de l'organisation, produits ou projets open source font déjà l'essentiel de ce besoin ? »
+- Le circuit du premier jour (règle 5) part du gabarit officiel d'un framework, ou d'un projet existant, quand il y en a un. Deux réserves : vérifier la licence, et ne pas partir d'un code mal fait, dont on hérite la dette.
+- On cherche d'abord une bibliothèque là où l'erreur coûte cher : découpage (SQL, HTML), protection des caractères, validation d'un format. Une dépendance se choisit sur preuves : nom exact vérifié, maintenance, adoption, failles connues, licence, dépendances ajoutées.
+- En fin de projet, demande à l'agent ce qu'une bibliothèque aurait remplacé, pour le savoir au projet suivant.
+
+Première observation : l'audit d'un projet a relevé trois découpages de SQL faits à la main, et trois défauts déjà payés. C'est une observation dans un seul projet, pas encore une preuve.
+
+- Attendu : moins de code écrit pour des besoins banals, et moins de défauts dans le découpage et la validation.
+- Mesure : ce qu'une bibliothèque aurait remplacé, d'après la question de fin de projet, et les défauts du registre dans ces zones.
+- Essai : le prochain projet démarré.
 
 ### Séparer le plan de l'exécution
 
