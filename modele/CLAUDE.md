@@ -21,6 +21,7 @@ Modèle vibe-coding 4.2
 - Tests dans tests/, jamais dans src/.
 - Sur données réelles anonymisées. Date fixée. Ordre explicite.
 - Règle métier non tranchée par la donnée : test ignoré marqué ARBITRAGE.
+- Test qui demande des données locales ou un secret : nomme-le dans tests/locaux.txt. La CI le saute. Ne le supprime jamais.
 
 ## Preuve
 - Lance ./verifier avant de déclarer une tâche finie. Colle sa sortie.
