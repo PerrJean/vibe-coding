@@ -92,6 +92,8 @@ Ce qui ne te différencie pas ne se code pas : un tableau de bord, une synchroni
 - On cherche d'abord une bibliothèque là où l'erreur coûte cher : découpage (SQL, HTML), protection des caractères, validation d'un format. Une dépendance se choisit sur preuves : nom exact vérifié, maintenance, adoption, failles connues, licence, dépendances ajoutées.
 - En fin de projet, demande à l'agent ce qu'une bibliothèque aurait remplacé, pour le savoir au projet suivant.
 
+La skill [chercher-l-existant](global/skills/chercher-l-existant/SKILL.md) fait cette recherche avant de coder un composant : elle classe le besoin, banal ou propre au métier, cherche dans l'ordre (outils de l'organisation, bibliothèque standard, open source, gabarits officiels), vérifie chaque candidat avec ses sources et n'installe rien.
+
 Première observation : l'audit d'un projet a relevé trois découpages de SQL faits à la main, et trois défauts déjà payés. C'est une observation dans un seul projet, pas encore une preuve.
 
 - Attendu : moins de code écrit pour des besoins banals, et moins de défauts dans le découpage et la validation.

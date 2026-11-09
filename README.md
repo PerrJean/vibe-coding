@@ -43,7 +43,7 @@ Les pratiques qui n'ont pas encore marché dans deux projets sont rangées à pa
 
 **5. Le premier jour, un circuit complet qui tourne.** La plus petite version qui lit une vraie donnée, produit une vraie sortie et a un test vert. Ce circuit est concret et propre au premier cas : pas de couches, pas d'interfaces, pas de configuration générique. Ensuite, on l'épaissit cas réel par cas réel, sans jamais le casser, et on ne généralise qu'au deuxième cas (règle 7).
 *Pourquoi : construire les morceaux un par un et les assembler à la fin fait arriver tous les problèmes ensemble, et tard. Concevoir l'architecture d'avance revient au même : on la bâtit pour des cas qu'on n'a pas encore vus.*
-À tester : partir du gabarit officiel d'un framework ou d'un projet existant ([partir de l'existant](POUR-ALLER-PLUS-LOIN.md#partir-de-lexistant)).
+À tester : partir du gabarit officiel d'un framework ou d'un projet existant ([partir de l'existant](POUR-ALLER-PLUS-LOIN.md#partir-de-lexistant)). La skill [chercher-l-existant](global/skills/chercher-l-existant/SKILL.md) fait la recherche et vérifie les candidats.
 
 **6. Lis la donnée avant de la supposer.** Fais afficher vingt enregistrements réels avant de concevoir. Ce que la donnée ne tranche pas est une question pour toi, notée comme telle, jamais une hypothèse de l'agent.
 *Pourquoi : un nom de champ supposé au lieu d'être lu coûte des journées.*
