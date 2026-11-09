@@ -19,10 +19,11 @@ Ce dépôt est public. Tout ce qui y entre devient public, et reste dans l'histo
 - Ne défais jamais un réglage git fait par une autre session : signale-le.
 - Fusionne avec git merge --no-ff : une avance rapide ne joue aucun hook.
 
-## Push
+## Envoi
 - Push libre quand : le pre-push passe (garde sur la plage), les tests passent, et le diff relu ne contient aucune donnée personnelle, même absente des listes.
 - Sur main : seulement par git merge --no-ff d'une branche dont la CI est verte.
-- Demande toujours avant : push --force ou réécriture d'historique, suppression d'une branche distante, modification de .githooks/ ou des listes de vibe.listes, LICENSE*, et tout doute sur une donnée personnelle.
+- Après la fusion dans main et une CI verte : git worktree remove, git branch -d, et suppression de la branche distante, sans demander.
+- Demande toujours avant : push --force ou réécriture d'historique, suppression d'une branche distante non fusionnée dans main, modification de .githooks/ ou des listes de vibe.listes, LICENSE*, et tout doute sur une donnée personnelle.
 
 ## Contenu
 - Textes (README, guides, lexique, annexe, CHANGELOG) sous CC BY 4.0 ; code (modele/, global/, outils/) sous MIT. Un nouveau dossier de code s'ajoute à la phrase de licence du README.
