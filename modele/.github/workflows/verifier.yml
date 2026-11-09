@@ -1,4 +1,4 @@
-# Modèle vibe-coding 4.2
+# Modèle vibe-coding 4.3
 # Lance ./verifier à chaque push, sur une machine neuve.
 # CI est posée par GitHub Actions : ./verifier saute alors les tests nommés dans tests/locaux.txt
 # (données locales, secret) et le contrôle des termes interdits, dont la liste reste sur le poste.

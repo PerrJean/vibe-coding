@@ -1,4 +1,4 @@
-# Modèle vibe-coding 4.2
+# Modèle vibe-coding 4.3
 # Fins de ligne fixées une fois pour toutes : LF partout, CRLF pour les scripts Windows.
 * text=auto eol=lf
 *.ps1 text eol=crlf

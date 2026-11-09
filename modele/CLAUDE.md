@@ -1,6 +1,6 @@
 # Règles du projet
 
-Modèle vibe-coding 4.2
+Modèle vibe-coding 4.3
 
 ## Avant d'agir
 - Lis PASSATION.md et le dernier commit. Rien d'autre sans raison.
