@@ -9,7 +9,7 @@ Ce dépôt est public. Tout ce qui y entre devient public, et reste dans l'histo
 
 ## Rien de personnel
 - Aucun nom de personne ni d'organisation privée (seule exception : l'auteur, dans LICENSE), chemin personnel, adresse e-mail, nom de projet, de client ou d'outil interne, secret. Les noms d'outils et de sources publiques restent permis. Écris `<projet>`, `$env:USERPROFILE`, `~`.
-- La garde de publication (.githooks/pre-commit, pre-merge-commit pour une fusion, commit-msg pour le message et les identités) le contrôle à chaque commit. Auteur et validateur : adresse masquée GitHub. Ne la contourne jamais : ni --no-verify, ni core.hooksPath changé, ni liste retirée de vibe.listes.
+- La garde de publication (.githooks/pre-commit, pre-merge-commit pour une fusion, commit-msg pour le message et les identités) le contrôle à chaque commit, pre-push sur chaque commit envoyé. Auteur et validateur : adresse masquée GitHub. Ne la contourne jamais : ni --no-verify, ni core.hooksPath changé, ni liste retirée de vibe.listes.
 - Un refus de la garde se corrige dans le fichier, ou se signale. Une liste privée ne se lit pas et ne s'affiche jamais.
 
 ## Git
