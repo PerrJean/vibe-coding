@@ -80,7 +80,7 @@ Les pratiques qui n'ont pas encore marché dans deux projets sont rangées à pa
 
 1. **Vérifier l'environnement** : git, connexion au dépôt distant, langage, shell. Ce qui manque se règle maintenant, pas au premier envoi.
 2. **Copier le dossier [modele/](modele/)**, puis activer ses hooks avec `git config core.hooksPath .githooks` et les déclarer exécutables avec `git add --chmod=+x .githooks/pre-commit .githooks/pre-merge-commit .githooks/pre-push`. Sans cette dernière commande, le premier commit est refusé sous Windows. Git, le fichier de règles, les contrôles avant commit et l'exclusion des fichiers produits sont alors en place.
-3. **Décider : personnel ou à reprendre**, et choisir le langage en conséquence (règle 3).
+3. **Décider : personnel ou à reprendre**, et choisir le langage en conséquence (règle 3). À tester : trancher aussi les décisions irréversibles ([la liste](POUR-ALLER-PLUS-LOIN.md#décisions-irréversibles-et-seuils-dexposition)).
 4. **L'interview, puis SPEC.md.** Phrase de départ : « Interviewe-moi sur ce besoin jusqu'à épuisement, puis écris la spec. »
 5. **CONTRAT.md**, une centaine de lignes au plus.
 6. **Le circuit complet** : une vraie donnée lue, une vraie sortie, un test vert, committé.

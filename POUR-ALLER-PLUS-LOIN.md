@@ -41,6 +41,7 @@ Et une règle d'économie : **avant d'écrire une fonction utilitaire, chercher 
 - **Un test qui reste vert quand on casse le code ne compte pas.** On casse volontairement le code de petites façons et on regarde si un test le détecte.
 - **Les tests vivent à côté du code, et restent plus simples que lui.** Dans un projet audité, les tests intégrés aux fichiers de code occupaient 21,8 % des lignes, et les deux fonctions les plus complexes du dépôt étaient des tests.
 - **Un contrôle se range selon sa durée** : quelques secondes au commit, une dizaine de minutes à la fusion, la liste complète à l'envoi. Un contrôle trop long à un moment fréquent finit désactivé.
+- À tester : ce qui se décide dès le jour 0, et la revue de sécurité à chaque seuil d'exposition ([décisions irréversibles et seuils d'exposition](#décisions-irréversibles-et-seuils-dexposition)).
 - **L'agent travaille avec les droits minimum.** Lecture seule par défaut, écriture seulement à l'étape qui l'exige, jamais d'abord en production.
 - **Les données personnelles, dès que le projet manipule des données réelles de personnes.** Structure réelle mais valeurs anonymisées dans les tests, rien dans git, rien dans les fichiers produits qui ne soit nécessaire. La taille du projet ne change rien : un prototype qui exporte des personnes est concerné.
 - **Un audit qualité à intervalles réguliers**, avec un prompt fixe et en lecture seule : composition du dépôt, taille, complexité, duplication, code mort, survie du code. Le premier projet audité aurait dû s'arrêter bien plus tôt : ses signaux étaient mesurables. La skill [audit-qualite](global/skills/) le fait.
@@ -94,6 +95,24 @@ Première observation : l'audit d'un projet a relevé trois découpages de SQL f
 - Attendu : moins de code écrit pour des besoins banals, et moins de défauts dans le découpage et la validation.
 - Mesure : ce qu'une bibliothèque aurait remplacé, d'après la question de fin de projet, et les défauts du registre dans ces zones.
 - Essai : le prochain projet démarré.
+
+### Décisions irréversibles et seuils d'exposition
+
+*À tester.*
+
+Les décisions irréversibles se prennent correctement dès le jour 0, même pour un prototype :
+
+- où vivent les données ;
+- l'authentification ;
+- aucun secret dans le code ;
+- une séparation des données par client, si l'outil peut servir plusieurs organisations ;
+- aucune donnée personnelle stockée sans besoin.
+
+Tout le reste avance vite, jusqu'à chaque seuil d'exposition : du poste vers des collègues, puis vers des clients ou une URL publique. Avant de franchir un seuil, une revue de sécurité. Un prototype local, jetable et sans données personnelles n'en a pas besoin.
+
+- Attendu : aucune réécriture imposée par l'une de ces décisions au moment d'ouvrir l'outil à plus de monde.
+- Mesure : les décisions tranchées au jour 0, et les défauts du registre qui remettent l'une d'elles en cause.
+- Essai : le prochain projet destiné à d'autres personnes que son auteur.
 
 ### Séparer le plan de l'exécution
 
