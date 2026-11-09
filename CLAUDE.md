@@ -26,6 +26,7 @@ Ce dépôt est public. Tout ce qui y entre devient public, et reste dans l'histo
 - Le pourquoi vit dans les textes. modele/ et global/ sont lus par l'agent : impératif, sans justification.
 - Tout changement visible s'inscrit au CHANGELOG. Nouvelle version : relance python outils/estampiller_modele.py.
 - global/skills/ et global/hooks/ sont reliés à ~/.claude sur ce poste : une modification y est active aussitôt, dans toutes les sessions.
+- Une skill de global/skills/ se modifie dans le dépôt, sur une branche et dans un worktree, jamais à travers ~/.claude : la jonction mène au dossier principal et contourne le worktree.
 
 ## Code
 - Fichier de code : 500 lignes maximum. Fonction : au-delà de 80 lignes, scinde ou justifie.
